@@ -1,0 +1,15 @@
+services:
+  flask-app:
+    build: .
+    ports:
+      - "5002:5000"
+    volumes:
+      - .:/app
+    environment:
+      FLASK_ENV: development
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true
