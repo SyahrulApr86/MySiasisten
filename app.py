@@ -34,6 +34,7 @@ def index():
                                                         latest_period)
     return render_template('index.html', latest_period=latest_period, combined_logs=combined_logs)
 
+
 @app.route('/log/<log_id>', methods=['GET'])
 def view_log_per_lowongan(log_id):
     if 'sessionid' not in session:
@@ -50,6 +51,7 @@ def view_log_per_lowongan(log_id):
 
     # Berikan logs dan mata kuliah ke template
     return render_template('log_per_lowongan.html', logs=logs, mata_kuliah=mata_kuliah)
+
 
 @app.route('/create-log/<create_log_id>', methods=['GET', 'POST'])
 def create_log_view(create_log_id):
@@ -173,11 +175,11 @@ def edit_log_view(log_id):
 
     try:
         tanggal_obj = datetime.strptime(log_to_edit['Tanggal'], '%d-%m-%Y')
-        log_to_edit['Tanggal'] = tanggal_obj.strftime('%Y-%m-%d')  # Konversi ke 'yyyy-MM-dd' untuk HTML input[type="date"]
+        log_to_edit['Tanggal'] = tanggal_obj.strftime(
+            '%Y-%m-%d')  # Konversi ke 'yyyy-MM-dd' untuk HTML input[type="date"]
     except ValueError:
         error_message = "Format tanggal pada log tidak valid."
         return render_template('edit_log.html', log_id=log_id, log=log_to_edit, error_message=error_message)
-
 
     # Jika POST, lakukan update
     if request.method == 'POST':
@@ -303,6 +305,8 @@ def delete_log_view(log_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
+    error_message = None  # Inisialisasi pesan error
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -320,8 +324,9 @@ def login_page():
             session['csrftoken_cookie'] = csrftoken_cookie
             return redirect(url_for('index'))
         else:
-            return "Login Failed", 401
-    return render_template('login.html')
+            error_message = "Login gagal, silakan periksa username atau password Anda."
+
+    return render_template('login.html', error_message=error_message)
 
 
 if __name__ == "__main__":
