@@ -1,4 +1,3 @@
-
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
@@ -136,6 +135,34 @@ def edit_log_view(log_id):
     if 'sessionid' not in session:
         return redirect(url_for('login_page'))
 
+    error_message = None  # Variabel untuk menyimpan pesan error
+
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session['sessionid'])
+    session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
+
+    # Dapatkan logs dari combined_logs
+    lowongan_data = get_accepted_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'])
+    latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
+                                                               session['sessionid'], lowongan_data)
+    combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'],
+                                                        session['sessionid'], latest_period)
+
+    # Cari log berdasarkan log_id dari combined_logs
+    log_to_edit = next((log for log in combined_logs if log.get('LogID') == log_id), None)
+
+    if not log_to_edit:
+        return f"Log with ID {log_id} not found", 404
+
+    try:
+        tanggal_obj = datetime.strptime(log_to_edit['Tanggal'], '%d-%m-%Y')
+        log_to_edit['Tanggal'] = tanggal_obj.strftime('%Y-%m-%d')  # Konversi ke 'yyyy-MM-dd' untuk HTML input[type="date"]
+    except ValueError:
+        error_message = "Format tanggal pada log tidak valid."
+        return render_template('edit_log.html', log_id=log_id, log=log_to_edit, error_message=error_message)
+
+
+    # Jika POST, lakukan update
     if request.method == 'POST':
         # Ambil data dari form
         kategori_log = request.form['kategori_log']
@@ -144,18 +171,80 @@ def edit_log_view(log_id):
         waktu_mulai = request.form['waktu_mulai']  # format: 'HH:MM'
         waktu_selesai = request.form['waktu_selesai']  # format: 'HH:MM'
 
+        # Waktu saat ini
+        now = datetime.now()
+        current_time = now.time()
+        today = now.date()
+        batas_waktu = time(7, 0)  # 7:00 AM
+
         try:
-            # Parsing tanggal dan waktu dari form
+            # Parse tanggal dan waktu
             tanggal_parsed = datetime.strptime(tanggal, '%Y-%m-%d').date()
             waktu_mulai_parsed = datetime.strptime(waktu_mulai, '%H:%M').time()
             waktu_selesai_parsed = datetime.strptime(waktu_selesai, '%H:%M').time()
         except ValueError as e:
-            # Jika parsing gagal, tampilkan error
-            return f"Format waktu atau tanggal tidak valid: {e}", 400
+            error_message = "Format waktu atau tanggal tidak valid."
+            return render_template('edit_log.html', log_id=log_id, error_message=error_message, log=log_to_edit)
 
+        # Validasi: hanya izinkan menit yang bernilai 00, 15, 30, atau 45
+        if waktu_mulai_parsed.minute not in [0, 15, 30, 45]:
+            error_message = "Waktu mulai harus memiliki menit 00, 15, 30, atau 45!"
+        elif waktu_selesai_parsed.minute not in [0, 15, 30, 45]:
+            error_message = "Waktu selesai harus memiliki menit 00, 15, 30, atau 45!"
+        # Validasi tanggal:
+        elif tanggal_parsed == today and current_time < batas_waktu:
+            error_message = "Anda belum bisa mengisi log untuk hari ini sebelum jam 7 pagi!"
+        elif tanggal_parsed > today:
+            error_message = "Tanggal tidak bisa di masa depan!"
+        # Cek apakah waktu mulai < waktu selesai
+        elif waktu_mulai_parsed >= waktu_selesai_parsed:
+            error_message = "Waktu mulai harus lebih awal dari waktu selesai!"
+
+        if error_message:
+            return render_template('edit_log.html', log_id=log_id, error_message=error_message, log=log_to_edit)
+
+        # Hitung durasi (dalam menit)
+        waktu_mulai_combined = datetime.combine(tanggal_parsed, waktu_mulai_parsed)
+        waktu_selesai_combined = datetime.combine(tanggal_parsed, waktu_selesai_parsed)
+        durasi = (waktu_selesai_combined - waktu_mulai_combined).seconds // 60
+
+        # Cek overlap dengan logs lain
         session_req = requests.Session()
+        session_req.cookies.set('sessionid', session['sessionid'])
+        session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
 
-        # Proses update log menggunakan fungsi `update_log`
+        lowongan_data = get_accepted_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'])
+        latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
+                                                                   session['sessionid'], lowongan_data)
+
+        combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'],
+                                                            session['sessionid'], latest_period)
+
+        # Hapus log yang sedang di-edit dari daftar logs
+        combined_logs = [log for log in combined_logs if log.get('LogID') != log_id]
+
+        # Buat log yang sudah diedit
+        edited_log = {
+            'Tanggal': tanggal,
+            'Jam Mulai': waktu_mulai,
+            'Jam Selesai': waktu_selesai,
+            'Durasi (Menit)': durasi,
+            'Kategori': kategori_log,
+            'Deskripsi Tugas': deskripsi,
+        }
+        combined_logs.append(edited_log)
+
+        # Cek apakah ada overlap
+        overlap, overlap_logs = is_overlap(combined_logs)
+        if overlap:
+            # Formatkan pesan overlap menjadi lebih deskriptif
+            overlap_message = "Log berikut menyebabkan overlap:<br>"
+            for log1, log2 in overlap_logs:
+                log1_course = log1.get('Mata Kuliah', 'Unknown Course')
+                overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
+            return render_template('edit_log.html', log_id=log_id, error_message=overlap_message, log=log_to_edit)
+
+        # Update log
         update_log(
             session=session_req,
             csrftoken_cookie=session['csrftoken_cookie'],
@@ -171,8 +260,8 @@ def edit_log_view(log_id):
 
         return redirect(url_for('index'))
 
-    # Jika GET, render form untuk edit log
-    return render_template('edit_log.html', log_id=log_id)
+    # Jika GET, render form dengan data prefilled dari log_to_edit
+    return render_template('edit_log.html', log_id=log_id, log=log_to_edit)
 
 
 @app.route('/delete-log/<log_id>', methods=['POST'])

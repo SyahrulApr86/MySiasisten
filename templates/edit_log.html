@@ -126,51 +126,49 @@
     {% if error_message %}
     <div class="alert alert-danger">
         <i class="fas fa-exclamation-circle"></i> {{ error_message|safe }}
-        <!-- safe digunakan agar HTML tag dalam error_message diparsing -->
     </div>
     {% endif %}
 
     <form method="POST" action="{{ url_for('edit_log_view', log_id=log_id) }}">
-
         <div class="mb-3">
             <label for="kategori_log" class="form-label">Kategori Log</label>
             <select class="form-select" id="kategori_log" name="kategori_log" required>
-                <option value="1" {% if kategori_log == "1" %}selected{% endif %}>Asistensi/Tutorial</option>
-                <option value="2" {% if kategori_log == "2" %}selected{% endif %}>Mengoreksi</option>
-                <option value="3" {% if kategori_log == "3" %}selected{% endif %}>Mengawas</option>
-                <option value="5" {% if kategori_log == "5" %}selected{% endif %}>Persiapan Asistensi</option>
-                <option value="6" {% if kategori_log == "6" %}selected{% endif %}>Membuat soal/tugas</option>
-                <option value="7" {% if kategori_log == "7" %}selected{% endif %}>Rapat</option>
-                <option value="8" {% if kategori_log == "8" %}selected{% endif %}>Sit in Kelas</option>
-                <option value="9" {% if kategori_log == "9" %}selected{% endif %}>Pengembangan Materi</option>
-                <option value="10" {% if kategori_log == "10" %}selected{% endif %}>Pengembangan apps</option>
-                <option value="11" {% if kategori_log == "11" %}selected{% endif %}>Persiapan infra</option>
-                <option value="12" {% if kategori_log == "12" %}selected{% endif %}>Dokumentasi</option>
-                <option value="13" {% if kategori_log == "13" %}selected{% endif %}>Persiapan kuliah</option>
-                <option value="14" {% if kategori_log == "14" %}selected{% endif %}>Penunjang</option>
-                <option value="15" {% if kategori_log == "15" %}selected{% endif %}>Input Data</option>
+                <option value="1" {% if log['Kategori'] == '1' %}selected{% endif %}>Asistensi/Tutorial</option>
+                <option value="2" {% if log['Kategori'] == '2' %}selected{% endif %}>Mengoreksi</option>
+                <option value="3" {% if log['Kategori'] == '3' %}selected{% endif %}>Mengawas</option>
+                <option value="5" {% if log['Kategori'] == '5' %}selected{% endif %}>Persiapan Asistensi</option>
+                <option value="6" {% if log['Kategori'] == '6' %}selected{% endif %}>Membuat soal/tugas</option>
+                <option value="7" {% if log['Kategori'] == '7' %}selected{% endif %}>Rapat</option>
+                <option value="8" {% if log['Kategori'] == '8' %}selected{% endif %}>Sit in Kelas</option>
+                <option value="9" {% if log['Kategori'] == '9' %}selected{% endif %}>Pengembangan Materi</option>
+                <option value="10" {% if log['Kategori'] == '10' %}selected{% endif %}>Pengembangan apps</option>
+                <option value="11" {% if log['Kategori'] == '11' %}selected{% endif %}>Persiapan infra</option>
+                <option value="12" {% if log['Kategori'] == '12' %}selected{% endif %}>Dokumentasi</option>
+                <option value="13" {% if log['Kategori'] == '13' %}selected{% endif %}>Persiapan kuliah</option>
+                <option value="14" {% if log['Kategori'] == '14' %}selected{% endif %}>Penunjang</option>
+                <option value="15" {% if log['Kategori'] == '15' %}selected{% endif %}>Input Data</option>
             </select>
         </div>
 
         <div class="mb-3">
             <label for="deskripsi" class="form-label">Deskripsi</label>
-            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required>{{ deskripsi }}</textarea>
+            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required>{{ log['Deskripsi Tugas'] }}</textarea>
         </div>
 
         <div class="mb-3">
             <label for="tanggal" class="form-label">Tanggal</label>
-            <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ tanggal }}" required>
+            <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ log['Tanggal'] }}" required>
         </div>
 
         <div class="mb-3">
             <label for="waktu_mulai" class="form-label">Waktu Mulai</label>
-            <input type="time" class="form-control" id="waktu_mulai" name="waktu_mulai" value="{{ waktu_mulai }}" step="900" required>
+            <input type="time" class="form-control" id="waktu_mulai" name="waktu_mulai" value="{{ log['Jam Mulai'] }}" step="900" required>
             <div class="invalid-feedback">Menit harus 00, 15, 30, atau 45.</div>
         </div>
 
         <div class="mb-3">
             <label for="waktu_selesai" class="form-label">Waktu Selesai</label>
-            <input type="time" class="form-control" id="waktu_selesai" name="waktu_selesai" value="{{ waktu_selesai }}" step="900" required>
+            <input type="time" class="form-control" id="waktu_selesai" name="waktu_selesai" value="{{ log['Jam Selesai'] }}" step="900" required>
             <div class="invalid-feedback">Menit harus 00, 15, 30, atau 45.</div>
         </div>
 
