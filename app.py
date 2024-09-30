@@ -28,11 +28,28 @@ def index():
     latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
                                                                session['sessionid'], lowongan_data)
 
+    print(latest_period)
     # get combined logs
     combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'], session['sessionid'],
                                                         latest_period)
     return render_template('index.html', latest_period=latest_period, combined_logs=combined_logs)
 
+@app.route('/log/<log_id>', methods=['GET'])
+def view_log_per_lowongan(log_id):
+    if 'sessionid' not in session:
+        return redirect(url_for('login_page'))
+
+    mata_kuliah = request.args.get('mata_kuliah')  # Ambil nama mata kuliah dari URL
+
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session['sessionid'])
+    session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
+
+    # Mengambil data log per lowongan menggunakan `get_log_per_lowongan`
+    logs = get_log_per_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'], log_id)
+
+    # Berikan logs dan mata kuliah ke template
+    return render_template('log_per_lowongan.html', logs=logs, mata_kuliah=mata_kuliah)
 
 @app.route('/create-log/<create_log_id>', methods=['GET', 'POST'])
 def create_log_view(create_log_id):
@@ -124,7 +141,7 @@ def create_log_view(create_log_id):
                    {'hour': waktu_mulai_parsed.hour, 'minute': waktu_mulai_parsed.minute},
                    {'hour': waktu_selesai_parsed.hour, 'minute': waktu_selesai_parsed.minute})
 
-        return f"Log created for ID: {create_log_id}"
+        return redirect(url_for('index'))
 
     return render_template('create_log.html', create_log_id=create_log_id)
 
