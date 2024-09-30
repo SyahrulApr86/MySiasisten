@@ -1,9 +1,8 @@
-from urllib.parse import unquote
 
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
-from login import login  # Login function from your code
+from login import login
 from datetime import datetime, time, timedelta
 from log import *
 
@@ -33,13 +32,11 @@ def index():
     # get combined logs
     combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'], session['sessionid'],
                                                         latest_period)
-
     return render_template('index.html', latest_period=latest_period, combined_logs=combined_logs)
 
 
 @app.route('/create-log/<create_log_id>', methods=['GET', 'POST'])
 def create_log_view(create_log_id):
-
     if 'sessionid' not in session:
         return redirect(url_for('login_page'))
 
@@ -131,6 +128,71 @@ def create_log_view(create_log_id):
         return f"Log created for ID: {create_log_id}"
 
     return render_template('create_log.html', create_log_id=create_log_id)
+
+
+@app.route('/edit-log/<log_id>', methods=['GET', 'POST'])
+def edit_log_view(log_id):
+    # Cek apakah user sudah login
+    if 'sessionid' not in session:
+        return redirect(url_for('login_page'))
+
+    if request.method == 'POST':
+        # Ambil data dari form
+        kategori_log = request.form['kategori_log']
+        deskripsi = request.form['deskripsi']
+        tanggal = request.form['tanggal']  # format: 'YYYY-MM-DD'
+        waktu_mulai = request.form['waktu_mulai']  # format: 'HH:MM'
+        waktu_selesai = request.form['waktu_selesai']  # format: 'HH:MM'
+
+        try:
+            # Parsing tanggal dan waktu dari form
+            tanggal_parsed = datetime.strptime(tanggal, '%Y-%m-%d').date()
+            waktu_mulai_parsed = datetime.strptime(waktu_mulai, '%H:%M').time()
+            waktu_selesai_parsed = datetime.strptime(waktu_selesai, '%H:%M').time()
+        except ValueError as e:
+            # Jika parsing gagal, tampilkan error
+            return f"Format waktu atau tanggal tidak valid: {e}", 400
+
+        session_req = requests.Session()
+
+        # Proses update log menggunakan fungsi `update_log`
+        update_log(
+            session=session_req,
+            csrftoken_cookie=session['csrftoken_cookie'],
+            sessionid=session['sessionid'],
+            csrfmiddlewaretoken=session['csrf_token'],
+            log_id=log_id,
+            kategori_log=kategori_log,
+            deskripsi=deskripsi,
+            tanggal={'day': tanggal_parsed.day, 'month': tanggal_parsed.month, 'year': tanggal_parsed.year},
+            waktu_mulai={'hour': waktu_mulai_parsed.hour, 'minute': waktu_mulai_parsed.minute},
+            waktu_selesai={'hour': waktu_selesai_parsed.hour, 'minute': waktu_selesai_parsed.minute}
+        )
+
+        return redirect(url_for('index'))
+
+    # Jika GET, render form untuk edit log
+    return render_template('edit_log.html', log_id=log_id)
+
+
+@app.route('/delete-log/<log_id>', methods=['POST'])
+def delete_log_view(log_id):
+    # Cek apakah user sudah login
+    if 'sessionid' not in session:
+        return redirect(url_for('login_page'))
+
+    session_req = requests.Session()
+
+    # Proses delete log menggunakan fungsi `delete_log`
+    delete_log(
+        session=session_req,
+        csrftoken_cookie=session['csrftoken_cookie'],
+        sessionid=session['sessionid'],
+        csrfmiddlewaretoken=session['csrf_token'],
+        log_id=log_id
+    )
+
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])

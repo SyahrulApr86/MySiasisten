@@ -101,9 +101,14 @@
             }
         }
 
+        .custom-container {
+            width: 90%;
+            max-width: none;
+        }
+
         .table-container {
             margin: 0 auto;
-            width: 98%;
+            width: 80%;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -114,17 +119,17 @@
         }
 
         .table-container.wide {
-            width: 100%;
+            width: 80%;
         }
 
         .latest-period-table th:nth-child(2),
         .latest-period-table td:nth-child(2) {
-            width: 30%;
+            width: 20%;
         }
 
         .latest-period-table th:nth-child(5),
         .latest-period-table td:nth-child(5) {
-            width: 20%;
+            width: 30%;
         }
 
         .table td:nth-child(2) {
@@ -176,7 +181,7 @@
     </div>
 </nav>
 
-<div class="container content mt-4">
+<div class="container content mt-4 custom-container">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -221,7 +226,8 @@
                         </a>
                     </td>
                     <td>
-                        <form action="{{ url_for('create_log_view', create_log_id=entry['Create Log Link ID']) }}" method="GET">
+                        <form action="{{ url_for('create_log_view', create_log_id=entry['Create Log Link ID']) }}"
+                              method="GET">
                             <input type="hidden" name="mata_kuliah" value="{{ entry['Mata Kuliah'] }}">
                             <button type="submit" class="btn btn-success btn-sm create-log-btn">
                                 <i class="fas fa-plus me-1"></i>Create Log
@@ -252,6 +258,7 @@
                     <th scope="col">Mata Kuliah</th>
                     <th scope="col">Status</th>
                     <th scope="col">Pesan</th>
+                    <th scope="col">Aksi</th> <!-- Kolom untuk Edit dan Delete -->
                 </tr>
                 </thead>
                 <tbody>
@@ -271,10 +278,43 @@
                             <i class="fas fa-envelope me-1"></i>Pesan
                         </a>
                     </td>
+                    <td>
+                        <!-- Tombol Edit -->
+                        <a href="{{ url_for('edit_log_view', log_id=log['LogID']) }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <!-- Tombol Hapus memicu modal konfirmasi -->
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal" data-logid="{{ log['LogID'] }}">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
+
+            <!-- Modal Konfirmasi Penghapusan -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Apakah Anda yakin ingin menghapus log ini? Tindakan ini tidak dapat diurungkan.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <form id="deleteForm" method="POST" action="">
+                                <button type="submit" class="btn btn-danger">Hapus</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -291,5 +331,20 @@
 
 <!-- Bootstrap JS and dependencies -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            // Tombol yang memicu modal
+            var button = event.relatedTarget;
+            // Ambil data dari tombol yang dipilih
+            var logId = button.getAttribute('data-logid');
+            // Form penghapusan di dalam modal
+            var form = document.getElementById('deleteForm');
+            // Ubah action form sesuai log yang dipilih
+            form.action = '/delete-log/' + logId;
+        });
+    });
+</script>
 </body>
 </html>

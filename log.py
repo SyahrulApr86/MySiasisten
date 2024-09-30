@@ -182,7 +182,8 @@ def get_log_per_lowongan(session, csrftoken_cookie, sessionid, log_id):
                 "Deskripsi Tugas": deskripsi_tugas,
                 "Status": status,
                 "Operation": operation,
-                "Pesan Link": pesan_link
+                "Pesan Link": pesan_link,
+                "LogID": pesan_link.split('/')[-2]
             })
 
     return data
