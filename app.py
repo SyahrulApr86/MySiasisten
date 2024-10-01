@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import os
 from login import login
 from datetime import datetime, time, timedelta
+import pytz
 from log import *
 
 app = Flask(__name__)
@@ -89,11 +90,14 @@ def create_log_view(create_log_id):
         waktu_mulai = request.form['waktu_mulai']  # format: 'HH:MM'
         waktu_selesai = request.form['waktu_selesai']  # format: 'HH:MM'
 
-        # Waktu saat ini
-        now = datetime.now()
-        current_time = now.time()
-        today = now.date()
-        batas_waktu = time(7, 0)  # 7:00 AM
+        # Zona waktu WIB (UTC+7)
+        wib = pytz.timezone('Asia/Jakarta')
+
+        # Waktu saat ini dalam zona waktu WIB
+        now_wib = datetime.now(wib)
+        current_time_wib = now_wib.time()
+        today_wib = now_wib.date()
+        batas_waktu_wib = time(7, 0)  # 7:00 AM WIB
 
         try:
             # Parse tanggal dan waktu
@@ -109,10 +113,10 @@ def create_log_view(create_log_id):
             error_message = "Waktu mulai harus memiliki menit 00, 15, 30, atau 45!"
         elif waktu_selesai_parsed.minute not in [0, 15, 30, 45]:
             error_message = "Waktu selesai harus memiliki menit 00, 15, 30, atau 45!"
-        # Validasi tanggal:
-        elif tanggal_parsed == today and current_time < batas_waktu:
-            error_message = "Anda belum bisa mengisi log untuk hari ini sebelum jam 7 pagi!"
-        elif tanggal_parsed > today:
+        # Validasi tanggal: pastikan saat ini sudah lebih dari pukul 7 WIB
+        elif tanggal_parsed == today_wib and current_time_wib < batas_waktu_wib:
+            error_message = "Anda belum bisa mengisi log untuk hari ini sebelum jam 7 pagi WIB!"
+        elif tanggal_parsed > today_wib:
             error_message = "Tanggal tidak bisa di masa depan!"
         # Cek apakah waktu mulai < waktu selesai
         elif waktu_mulai_parsed >= waktu_selesai_parsed:
@@ -211,11 +215,14 @@ def edit_log_view(log_id):
         waktu_mulai = request.form['waktu_mulai']  # format: 'HH:MM'
         waktu_selesai = request.form['waktu_selesai']  # format: 'HH:MM'
 
-        # Waktu saat ini
-        now = datetime.now()
-        current_time = now.time()
-        today = now.date()
-        batas_waktu = time(7, 0)  # 7:00 AM
+        # Zona waktu WIB (UTC+7)
+        wib = pytz.timezone('Asia/Jakarta')
+
+        # Waktu saat ini dalam zona waktu WIB
+        now_wib = datetime.now(wib)
+        current_time_wib = now_wib.time()
+        today_wib = now_wib.date()
+        batas_waktu_wib = time(7, 0)  # 7:00 AM WIB
 
         try:
             # Parse tanggal dan waktu
@@ -231,10 +238,10 @@ def edit_log_view(log_id):
             error_message = "Waktu mulai harus memiliki menit 00, 15, 30, atau 45!"
         elif waktu_selesai_parsed.minute not in [0, 15, 30, 45]:
             error_message = "Waktu selesai harus memiliki menit 00, 15, 30, atau 45!"
-        # Validasi tanggal:
-        elif tanggal_parsed == today and current_time < batas_waktu:
-            error_message = "Anda belum bisa mengisi log untuk hari ini sebelum jam 7 pagi!"
-        elif tanggal_parsed > today:
+        # Validasi tanggal: pastikan saat ini sudah lebih dari pukul 7 WIB
+        elif tanggal_parsed == today_wib and current_time_wib < batas_waktu_wib:
+            error_message = "Anda belum bisa mengisi log untuk hari ini sebelum jam 7 pagi WIB!"
+        elif tanggal_parsed > today_wib:
             error_message = "Tanggal tidak bisa di masa depan!"
         # Cek apakah waktu mulai < waktu selesai
         elif waktu_mulai_parsed >= waktu_selesai_parsed:
@@ -302,6 +309,7 @@ def edit_log_view(log_id):
 
     # Jika GET, render form dengan data prefilled dari log_to_edit
     return render_template('edit_log.html', log_id=log_id, log=log_to_edit)
+
 
 
 @app.route('/delete-log/<log_id>', methods=['POST'])
