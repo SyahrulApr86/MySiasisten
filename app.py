@@ -8,11 +8,13 @@ from log import *
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config['CACHE_TYPE'] = 'RedisCache'
-app.config['CACHE_REDIS_HOST'] = 'localhost'  # Redis berjalan di localhost
+app.config['CACHE_REDIS_HOST'] = 'redis'
 app.config['CACHE_REDIS_PORT'] = 6379
 app.config['CACHE_REDIS_DB'] = 0
-app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'  # Mengubah URL untuk menunjuk localhost
+app.config['CACHE_REDIS_URL'] = 'redis://redis:6379/0'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Timeout default 5 menit
+
+
 cache = Cache(app)
 
 
