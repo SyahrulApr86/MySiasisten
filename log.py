@@ -7,6 +7,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from login import login
 from login import COMMON_HEADERS
+from concurrent.futures import ThreadPoolExecutor
 import os
 
 # Load environment variables from .env file
@@ -125,6 +126,36 @@ def filter_by_latest_period_and_add_create_log(session, csrftoken_cookie, sessio
         entry['Create Log Link ID'] = create_log_link.split('/')[-2] if create_log_link else None
 
     return filtered_data
+
+
+def get_combined_logs_for_latest_period_parallel(session, csrftoken_cookie, sessionid, filtered_lowongan):
+    """
+    Combine logs for all lowongan in the latest period and return a list of logs with "Mata Kuliah" field added.
+    Logs are fetched in parallel and sorted by Tanggal and Jam Mulai in descending order (newest first).
+    """
+    combined_logs = []
+
+    # Parallel fetching of log data
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(get_log_per_lowongan, session, csrftoken_cookie, sessionid, lowongan['LogID'])
+                   for lowongan in filtered_lowongan]
+
+        for future, lowongan in zip(futures, filtered_lowongan):
+            log_mahasiswa_data = future.result()
+            mata_kuliah = lowongan['Mata Kuliah']
+
+            # Add "Mata Kuliah" field to each log entry and append to the combined list
+            for log_entry in log_mahasiswa_data:
+                log_entry['Mata Kuliah'] = mata_kuliah
+                combined_logs.append(log_entry)
+
+    # Sort the logs by Tanggal and Jam Mulai (both converted to datetime), newest first
+    combined_logs_sorted = sorted(combined_logs, key=lambda log: (
+        datetime.strptime(log['Tanggal'], '%d-%m-%Y'),  # Convert 'Tanggal' to datetime
+        datetime.strptime(log['Jam Mulai'], '%H:%M')  # Convert 'Jam Mulai' to time
+    ), reverse=True)  # Sort in descending order (newest first)
+
+    return combined_logs_sorted
 
 
 def get_log_per_lowongan(session, csrftoken_cookie, sessionid, log_id):

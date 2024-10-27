@@ -223,5 +223,22 @@
         });
     });
 </script>
+<script>
+    function updateUserData() {
+        fetch('/update-data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    console.log(data.message);
+                } else if (data.error) {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Lakukan update setiap 30 detik
+    setInterval(updateUserData, 30000);
+</script>
 </body>
 </html>

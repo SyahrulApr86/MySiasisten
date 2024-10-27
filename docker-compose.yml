@@ -9,6 +9,15 @@ services:
       FLASK_ENV: development
     networks:
       - shared-network
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - shared-network
 
 networks:
   shared-network:
