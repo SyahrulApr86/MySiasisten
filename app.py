@@ -52,8 +52,6 @@ def index():
                 'description': log['Deskripsi Tugas']
             })
 
-    print(formatted_logs)
-
     return render_template('index.html', latest_period=latest_period, combined_logs=combined_logs, formatted_logs=formatted_logs)
 
 
@@ -356,6 +354,45 @@ def login_page():
             error_message = "Login gagal, silakan periksa username atau password Anda."
 
     return render_template('login.html', error_message=error_message)
+
+
+@app.route('/calendar', methods=['GET'])
+def calendar_view():
+    if 'sessionid' not in session:
+        return redirect(url_for('login_page'))
+
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session['sessionid'])
+    session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
+
+    # Ambil data lowongan dan logs
+    lowongan_data = get_accepted_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'])
+    latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
+                                                               session['sessionid'], lowongan_data)
+    combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'],
+                                                        session['sessionid'], latest_period)
+
+    # Convert logs to FullCalendar-compatible format
+    formatted_logs = []
+    for log in combined_logs:
+        if log['Tanggal'] and log['Jam Mulai'] and log['Jam Selesai']:
+            day, month, year = log['Tanggal'].split('-')
+            formatted_date = f"{year}-{month}-{day}"  # Convert to 'YYYY-MM-DD' format
+
+            formatted_logs.append({
+                'title': log['Kategori'],
+                'start': f"{formatted_date}T{log['Jam Mulai']}",
+                'end': f"{formatted_date}T{log['Jam Selesai']}",
+                'description': log['Deskripsi Tugas']
+            })
+
+    return render_template('calendar.html', formatted_logs=formatted_logs)
+
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    session.clear()  # Menghapus semua data session
+    return redirect(url_for('login_page'))
 
 
 if __name__ == '__main__':
