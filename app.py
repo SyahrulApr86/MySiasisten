@@ -6,11 +6,13 @@ from flask_caching import Cache
 from celery import Celery
 from log import *
 
+
 def make_celery(app):
     celery = Celery(app.import_name, backend=app.config['CELERY_RESULT_BACKEND'],
                     broker=app.config['CELERY_BROKER_URL'])
     celery.conf.update(app.config)
     return celery
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -129,23 +131,49 @@ def view_log_per_lowongan(log_id):
     return render_template('log_per_lowongan.html', logs=logs, mata_kuliah=mata_kuliah)
 
 
+@celery.task(name="app.create_log_async")
+def create_log_async(session_data, log_data):
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session_data['sessionid'])
+    session_req.cookies.set('csrftoken', session_data['csrftoken_cookie'])
+
+    # Lakukan pembuatan log baru
+    create_log(
+        session=session_req,
+        csrftoken_cookie=session_data['csrftoken_cookie'],
+        sessionid=session_data['sessionid'],
+        csrfmiddlewaretoken=session_data['csrf_token'],
+        create_log_id=log_data['create_log_id'],
+        kategori_log=log_data['kategori_log'],
+        deskripsi=log_data['deskripsi'],
+        tanggal=log_data['tanggal'],
+        waktu_mulai=log_data['waktu_mulai'],
+        waktu_selesai=log_data['waktu_selesai']
+    )
+
+    # Hapus cache setelah membuat log baru
+    cache.delete(log_data['cache_key_combined_logs'])
+    cache.delete(log_data['cache_key_formatted_logs'])
+
+    update_data()
+
+
 @app.route('/create-log/<create_log_id>', methods=['GET', 'POST'])
 def create_log_view(create_log_id):
     if 'sessionid' not in session:
         return redirect(url_for('login_page'))
 
-    error_message = None  # Variabel untuk menyimpan pesan error
+    error_message = None
 
-    # Buat session request
     session_req = requests.Session()
     session_req.cookies.set('sessionid', session['sessionid'])
     session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
 
-    # Buat cache key untuk tiap pengguna berdasarkan session ID
+    # Buat cache key berdasarkan session ID
     cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
     cache_key_latest_period = f'latest_period_{session["sessionid"]}'
     cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
-    cache_key_formatted_logs = f'formatted_logs_{session["sessionid"]}'  # Cache key untuk formatted_logs
+    cache_key_formatted_logs = f'formatted_logs_{session["sessionid"]}'
 
     # Cek cache untuk `lowongan_data`
     lowongan_data = cache.get(cache_key_lowongan)
@@ -158,14 +186,14 @@ def create_log_view(create_log_id):
     if latest_period is None:
         latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
                                                                    session['sessionid'], lowongan_data)
-        cache.set(cache_key_latest_period, latest_period, timeout=60)  # Cache selama 1 jam
+        cache.set(cache_key_latest_period, latest_period, timeout=60)  # Cache selama 1 menit
 
     # Cek cache untuk `combined_logs`
     combined_logs = cache.get(cache_key_combined_logs)
     if combined_logs is None:
         combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'],
                                                             session['sessionid'], latest_period)
-        cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 jam
+        cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 menit
 
     # Cek cache untuk `formatted_logs`
     formatted_logs = cache.get(cache_key_formatted_logs)
@@ -211,7 +239,7 @@ def create_log_view(create_log_id):
             tanggal_parsed = datetime.strptime(tanggal, '%Y-%m-%d').date()
             waktu_mulai_parsed = datetime.strptime(waktu_mulai, '%H:%M').time()
             waktu_selesai_parsed = datetime.strptime(waktu_selesai, '%H:%M').time()
-        except ValueError as e:
+        except ValueError:
             error_message = "Format waktu atau tanggal tidak valid."
             return render_template('create_log.html',
                                    create_log_id=create_log_id,
@@ -255,27 +283,35 @@ def create_log_view(create_log_id):
         # Cek overlap dengan logs lain
         overlap, overlap_logs = is_overlap(combined_logs)
         if overlap:
-            # Formatkan pesan overlap menjadi lebih deskriptif
             overlap_message = "Log berikut menyebabkan overlap:<br>"
             for log1, log2 in overlap_logs:
                 log1_course = log1.get('Mata Kuliah', 'Unknown Course')
                 overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
-
             return render_template('create_log.html',
                                    create_log_id=create_log_id,
                                    error_message=overlap_message,
                                    formatted_logs=formatted_logs)
 
-        # Jika validasi lolos, lakukan POST untuk membuat log
-        create_log(session_req, session['csrftoken_cookie'], session['sessionid'], session['csrf_token'],
-                   create_log_id, kategori_log, deskripsi,
-                   {'day': tanggal_parsed.day, 'month': tanggal_parsed.month, 'year': tanggal_parsed.year},
-                   {'hour': waktu_mulai_parsed.hour, 'minute': waktu_mulai_parsed.minute},
-                   {'hour': waktu_selesai_parsed.hour, 'minute': waktu_selesai_parsed.minute})
+        # Persiapkan data untuk dikirim ke tugas asinkron
+        log_data = {
+            'create_log_id': create_log_id,
+            'kategori_log': kategori_log,
+            'deskripsi': deskripsi,
+            'tanggal': {'day': tanggal_parsed.day, 'month': tanggal_parsed.month, 'year': tanggal_parsed.year},
+            'waktu_mulai': {'hour': waktu_mulai_parsed.hour, 'minute': waktu_mulai_parsed.minute},
+            'waktu_selesai': {'hour': waktu_selesai_parsed.hour, 'minute': waktu_selesai_parsed.minute},
+            'cache_key_combined_logs': cache_key_combined_logs,
+            'cache_key_formatted_logs': cache_key_formatted_logs
+        }
 
-        # Hapus cache setelah membuat log baru
-        cache.delete(cache_key_combined_logs)
-        cache.delete(cache_key_formatted_logs)
+        session_data = {
+            'sessionid': session['sessionid'],
+            'csrftoken_cookie': session['csrftoken_cookie'],
+            'csrf_token': session['csrf_token']
+        }
+
+        # Panggil tugas asinkron untuk membuat log baru
+        create_log_async.delay(session_data, log_data)
 
         return redirect(url_for('index'))
 
@@ -308,6 +344,8 @@ def update_log_async(session_data, log_data):
     # Hapus cache setelah update
     cache.delete(log_data['cache_key_combined_logs'])
     cache.delete(log_data['cache_key_formatted_logs'])
+
+    update_data()
 
 
 @app.route('/edit-log/<log_id>', methods=['GET', 'POST'])
