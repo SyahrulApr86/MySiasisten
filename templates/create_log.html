@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -215,6 +217,181 @@
                 width: 100%;
             }
         }
+        .container-fluid {
+            padding: 0 30px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        #calendar-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: 100%;
+            min-height: 700px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            padding: 0.675rem 1rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4e54c8;
+            box-shadow: 0 0 0 0.2rem rgba(78, 84, 200, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 84, 200, 0.4);
+        }
+
+        .alert-danger {
+            background-color: #fff5f5;
+            border-color: #feb2b2;
+            color: #c53030;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header {
+            background-color: #007bff;
+            color: white;
+        }
+        .modal-body {
+            background-color: #f8f9fa;
+        }
+        .modal-footer {
+            background-color: #f1f1f1;
+        }
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .edit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #218838;
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .modal-header.bg-gradient {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .detail-icon {
+            background: #f0f2f5;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4e54c8;
+        }
+
+        .detail-content label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .detail-content p {
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        .modal-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 1rem;
+        }
+
+        .modal-footer .btn {
+            width: 100%;
+            padding: 10px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-footer .btn-secondary {
+            background: #6c757d;
+            border: none;
+        }
+
+        .modal-footer .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .modal-footer .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+        }
+
+        .modal-footer .btn-primary:hover {
+            background: linear-gradient(45deg, #0056b3, #003d80);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .modal-footer .btn i {
+            margin-right: 8px;
+        }
+
     </style>
 </head>
 <body>
@@ -250,63 +427,172 @@
     </div>
 </nav>
 
-<div class="container">
-    <h2 class="section-title">Create New Log</h2>
-    <!-- Tampilkan pesan error jika ada -->
-    {% if error_message %}
-    <div class="alert alert-danger">
-        <i class="fas fa-exclamation-circle"></i> {{ error_message|safe }}
-        <!-- safe digunakan agar HTML tag dalam error_message diparsing -->
+<<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Form di sebelah kiri -->
+        <div class="col-md-6">
+            <div class="container">
+                <h2 class="section-title">Create New Log</h2>
+                {% if error_message %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> {{ error_message|safe }}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('create_log_view', create_log_id=create_log_id) }}">
+                    <div class="mb-3">
+                        <label for="kategori_log" class="form-label">Kategori Log</label>
+                        <select class="form-select" id="kategori_log" name="kategori_log" required>
+                            <option value="1">Asistensi/Tutorial</option>
+                            <option value="2">Mengoreksi</option>
+                            <option value="3">Mengawas</option>
+                            <option value="5">Persiapan Asistensi</option>
+                            <option value="6">Membuat soal/tugas</option>
+                            <option value="7">Rapat</option>
+                            <option value="8">Sit in Kelas</option>
+                            <option value="9">Pengembangan Materi</option>
+                            <option value="10">Pengembangan apps</option>
+                            <option value="11">Persiapan infra</option>
+                            <option value="12">Dokumentasi</option>
+                            <option value="13">Persiapan kuliah</option>
+                            <option value="14">Penunjang</option>
+                            <option value="15">Input Data</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tanggal" class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" id="tanggal" name="tanggal" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="waktu_mulai" class="form-label">Waktu Mulai</label>
+                        <input type="time" class="form-control" id="waktu_mulai" name="waktu_mulai" step="900" required>
+                        <div class="invalid-feedback">Menit harus 00, 15, 30, atau 45.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="waktu_selesai" class="form-label">Waktu Selesai</label>
+                        <input type="time" class="form-control" id="waktu_selesai" name="waktu_selesai" step="900" required>
+                        <div class="invalid-feedback">Menit harus 00, 15, 30, atau 45.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Log</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Calendar di sebelah kanan -->
+        <div class="col-md-6">
+            <div id="calendar-container">
+                <div id="calendar"></div>
+            </div>
+        </div>
     </div>
-    {% endif %}
-
-    <form method="POST" action="{{ url_for('create_log_view', create_log_id=create_log_id) }}">
-
-        <div class="mb-3">
-            <label for="kategori_log" class="form-label">Kategori Log</label>
-            <select class="form-select" id="kategori_log" name="kategori_log" required>
-                <option value="1">Asistensi/Tutorial</option>
-                <option value="2">Mengoreksi</option>
-                <option value="3">Mengawas</option>
-                <option value="5">Persiapan Asistensi</option>
-                <option value="6">Membuat soal/tugas</option>
-                <option value="7">Rapat</option>
-                <option value="8">Sit in Kelas</option>
-                <option value="9">Pengembangan Materi</option>
-                <option value="10">Pengembangan apps</option>
-                <option value="11">Persiapan infra</option>
-                <option value="12">Dokumentasi</option>
-                <option value="13">Persiapan kuliah</option>
-                <option value="14">Penunjang</option>
-                <option value="15">Input Data</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="deskripsi" class="form-label">Deskripsi</label>
-            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label for="tanggal" class="form-label">Tanggal</label>
-            <input type="date" class="form-control" id="tanggal" name="tanggal" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="waktu_mulai" class="form-label">Waktu Mulai</label>
-            <input type="time" class="form-control" id="waktu_mulai" name="waktu_mulai" step="900" required>
-            <div class="invalid-feedback">Menit harus 00, 15, 30, atau 45.</div>
-        </div>
-
-        <div class="mb-3">
-            <label for="waktu_selesai" class="form-label">Waktu Selesai</label>
-            <input type="time" class="form-control" id="waktu_selesai" name="waktu_selesai" step="900" required>
-            <div class="invalid-feedback">Menit harus 00, 15, 30, atau 45.</div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Create Log</button>
-    </form>
 </div>
+
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient">
+                <h5 class="modal-title" id="eventModalLabel">
+                    <i class="fas fa-calendar-check me-2"></i>Event Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="event-details">
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-heading"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Title</label>
+                            <p id="modalTitle" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Course</label>
+                            <p id="modalCourse" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Time</label>
+                            <p class="mb-0">
+                                Start: <span id="modalStart"></span><br>
+                                End: <span id="modalEnd"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-align-left"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Description</label>
+                            <p id="modalDescription" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Duration</label>
+                            <p id="modalDuration" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Category</label>
+                            <p id="modalKategori" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Status</label>
+                            <p id="modalStatus" class="mb-0"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+                <a href="#" id="editEventBtn" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -340,6 +626,56 @@
         waktuSelesaiInput.addEventListener('blur', function () {
             validateTimeInput(waktuSelesaiInput);
         });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: [
+                {% for log in formatted_logs %}
+        {
+            title: "{{ log.title }}",
+                start: "{{ log.start }}",
+            end: "{{ log.end }}",
+            extendedProps: {
+            description: "{{ log.description }}",
+                duration: "{{ log.duration }}",
+                kategori: "{{ log.kategori }}",
+                status: "{{ log.status }}",
+                editUrl: "{{ log.edit_url }}",
+                course: "{{ log.course }}"
+        }
+        },
+        {% endfor %}
+    ],
+        eventClick: function(info) {
+            // Memasukkan data ke dalam modal
+            document.getElementById('modalTitle').textContent = info.event.title || 'N/A';
+            document.getElementById('modalStart').textContent = info.event.start ? info.event.start.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
+            document.getElementById('modalEnd').textContent = info.event.end ? info.event.end.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
+            document.getElementById('modalDescription').textContent = info.event.extendedProps.description || 'N/A';
+            document.getElementById('modalDuration').textContent = info.event.extendedProps.duration ? `${info.event.extendedProps.duration} minutes` : 'N/A';
+            document.getElementById('modalKategori').textContent = info.event.extendedProps.kategori || 'N/A';
+            document.getElementById('modalStatus').textContent = info.event.extendedProps.status || 'N/A';
+            document.getElementById('modalCourse').textContent = info.event.extendedProps.course || 'N/A';
+
+            // Mengatur URL edit di tombol edit
+            document.getElementById('editEventBtn').href = info.event.extendedProps.editUrl;
+
+            // Menampilkan modal
+            var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+            eventModal.show();
+        }
+    });
+        calendar.render();
     });
 </script>
 <script>

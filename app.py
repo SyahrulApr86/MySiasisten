@@ -14,7 +14,6 @@ app.config['CACHE_REDIS_DB'] = 0
 app.config['CACHE_REDIS_URL'] = 'redis://redis:6379/0'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Timeout default 5 menit
 
-
 cache = Cache(app)
 
 
@@ -35,10 +34,10 @@ def index():
     session_req.cookies.set('sessionid', session['sessionid'])
     session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
 
-    # Buat cache key berdasarkan session ID untuk konsistensi dengan calendar view
     cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
     cache_key_latest_period = f'latest_period_{session["sessionid"]}'
     cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
+    cache_key_formatted_logs = f'formatted_logs_{session["sessionid"]}'
 
     # Cek cache untuk `lowongan_data`
     lowongan_data = cache.get(cache_key_lowongan)
@@ -60,24 +59,27 @@ def index():
                                                                      session['sessionid'], latest_period)
         cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 menit
 
-    # Convert logs to FullCalendar-compatible format
-    formatted_logs = []
-    for log in combined_logs:
-        if log['Tanggal'] and log['Jam Mulai'] and log['Jam Selesai']:
-            day, month, year = log['Tanggal'].split('-')
-            formatted_date = f"{year}-{month}-{day}"  # Convert to 'YYYY-MM-DD' format
+    # Cek cache untuk `formatted_logs`
+    formatted_logs = cache.get(cache_key_formatted_logs)
+    if formatted_logs is None:
+        formatted_logs = []
+        for log in combined_logs:
+            if log['Tanggal'] and log['Jam Mulai'] and log['Jam Selesai']:
+                day, month, year = log['Tanggal'].split('-')
+                formatted_date = f"{year}-{month}-{day}"  # Convert to 'YYYY-MM-DD' format
 
-            formatted_logs.append({
-                'title': log['Kategori'],
-                'start': f"{formatted_date}T{log['Jam Mulai']}",
-                'end': f"{formatted_date}T{log['Jam Selesai']}",
-                'description': log['Deskripsi Tugas'],
-                'duration': str(log['Durasi (Menit)']),
-                'kategori': log['Kategori'],
-                'status': log['Status'],
-                'edit_url': url_for('edit_log_view', log_id=log['LogID']),
-                'course': log.get('Mata Kuliah', 'Unknown Course')
-            })
+                formatted_logs.append({
+                    'title': log['Kategori'],
+                    'start': f"{formatted_date}T{log['Jam Mulai']}",
+                    'end': f"{formatted_date}T{log['Jam Selesai']}",
+                    'description': log['Deskripsi Tugas'],
+                    'duration': str(log['Durasi (Menit)']),
+                    'kategori': log['Kategori'],
+                    'status': log['Status'],
+                    'edit_url': url_for('edit_log_view', log_id=log['LogID']),
+                    'course': log.get('Mata Kuliah', 'Unknown Course')
+                })
+        cache.set(cache_key_formatted_logs, formatted_logs, timeout=0)
 
     return render_template('index.html', latest_period=latest_period, combined_logs=combined_logs,
                            formatted_logs=formatted_logs)
@@ -120,6 +122,59 @@ def create_log_view(create_log_id):
 
     error_message = None  # Variabel untuk menyimpan pesan error
 
+    # Buat session request
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session['sessionid'])
+    session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
+
+    # Buat cache key untuk tiap pengguna berdasarkan session ID
+    cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
+    cache_key_latest_period = f'latest_period_{session["sessionid"]}'
+    cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
+    cache_key_formatted_logs = f'formatted_logs_{session["sessionid"]}'  # Cache key untuk formatted_logs
+
+    # Cek cache untuk `lowongan_data`
+    lowongan_data = cache.get(cache_key_lowongan)
+    if lowongan_data is None:
+        lowongan_data = get_accepted_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'])
+        cache.set(cache_key_lowongan, lowongan_data, timeout=3600 * 12)  # Cache selama 12 jam
+
+    # Cek cache untuk `latest_period`
+    latest_period = cache.get(cache_key_latest_period)
+    if latest_period is None:
+        latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
+                                                                   session['sessionid'], lowongan_data)
+        cache.set(cache_key_latest_period, latest_period, timeout=60)  # Cache selama 1 jam
+
+    # Cek cache untuk `combined_logs`
+    combined_logs = cache.get(cache_key_combined_logs)
+    if combined_logs is None:
+        combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'],
+                                                            session['sessionid'], latest_period)
+        cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 jam
+
+    # Cek cache untuk `formatted_logs`
+    formatted_logs = cache.get(cache_key_formatted_logs)
+    if formatted_logs is None:
+        formatted_logs = []
+        for log in combined_logs:
+            if log['Tanggal'] and log['Jam Mulai'] and log['Jam Selesai']:
+                day, month, year = log['Tanggal'].split('-')
+                formatted_date = f"{year}-{month}-{day}"
+
+                formatted_logs.append({
+                    'title': log['Kategori'],
+                    'start': f"{formatted_date}T{log['Jam Mulai']}",
+                    'end': f"{formatted_date}T{log['Jam Selesai']}",
+                    'description': log['Deskripsi Tugas'],
+                    'duration': str(log['Durasi (Menit)']),
+                    'kategori': log['Kategori'],
+                    'status': log['Status'],
+                    'edit_url': url_for('edit_log_view', log_id=log['LogID']),
+                    'course': log.get('Mata Kuliah', 'Unknown Course')
+                })
+        cache.set(cache_key_formatted_logs, formatted_logs, timeout=60)  # Cache selama 1 menit
+
     if request.method == 'POST':
         # Ambil data dari form
         kategori_log = request.form['kategori_log']
@@ -144,7 +199,10 @@ def create_log_view(create_log_id):
             waktu_selesai_parsed = datetime.strptime(waktu_selesai, '%H:%M').time()
         except ValueError as e:
             error_message = "Format waktu atau tanggal tidak valid."
-            return render_template('create_log.html', create_log_id=create_log_id, error_message=error_message)
+            return render_template('create_log.html',
+                                   create_log_id=create_log_id,
+                                   error_message=error_message,
+                                   formatted_logs=formatted_logs)
 
         # Validasi: hanya izinkan menit yang bernilai 00, 15, 30, atau 45
         if waktu_mulai_parsed.minute not in [0, 15, 30, 45]:
@@ -159,42 +217,15 @@ def create_log_view(create_log_id):
             error_message = "Waktu mulai harus lebih awal dari waktu selesai!"
 
         if error_message:
-            return render_template('create_log.html', create_log_id=create_log_id, error_message=error_message)
+            return render_template('create_log.html',
+                                   create_log_id=create_log_id,
+                                   error_message=error_message,
+                                   formatted_logs=formatted_logs)
 
         # Hitung durasi (dalam menit)
         waktu_mulai_combined = datetime.combine(tanggal_parsed, waktu_mulai_parsed)
         waktu_selesai_combined = datetime.combine(tanggal_parsed, waktu_selesai_parsed)
         durasi = (waktu_selesai_combined - waktu_mulai_combined).seconds // 60
-
-        # Buat session request
-        session_req = requests.Session()
-        session_req.cookies.set('sessionid', session['sessionid'])
-        session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
-
-        # Buat cache key untuk tiap pengguna berdasarkan session ID
-        cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
-        cache_key_latest_period = f'latest_period_{session["sessionid"]}'
-        cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
-
-        # Cek cache untuk `lowongan_data`
-        lowongan_data = cache.get(cache_key_lowongan)
-        if lowongan_data is None:
-            lowongan_data = get_accepted_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'])
-            cache.set(cache_key_lowongan, lowongan_data, timeout=3600 * 12)  # Cache selama 12 jam
-
-        # Cek cache untuk `latest_period`
-        latest_period = cache.get(cache_key_latest_period)
-        if latest_period is None:
-            latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
-                                                                       session['sessionid'], lowongan_data)
-            cache.set(cache_key_latest_period, latest_period, timeout=60)  # Cache selama 1 jam
-
-        # Cek cache untuk `combined_logs`
-        combined_logs = cache.get(cache_key_combined_logs)
-        if combined_logs is None:
-            combined_logs = get_combined_logs_for_latest_period(session_req, session['csrftoken_cookie'],
-                                                                session['sessionid'], latest_period)
-            cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 jam
 
         # Tambahkan log baru
         new_log = {
@@ -216,7 +247,10 @@ def create_log_view(create_log_id):
                 log1_course = log1.get('Mata Kuliah', 'Unknown Course')
                 overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
 
-            return render_template('create_log.html', create_log_id=create_log_id, error_message=overlap_message)
+            return render_template('create_log.html',
+                                   create_log_id=create_log_id,
+                                   error_message=overlap_message,
+                                   formatted_logs=formatted_logs)
 
         # Jika validasi lolos, lakukan POST untuk membuat log
         create_log(session_req, session['csrftoken_cookie'], session['sessionid'], session['csrf_token'],
@@ -225,12 +259,16 @@ def create_log_view(create_log_id):
                    {'hour': waktu_mulai_parsed.hour, 'minute': waktu_mulai_parsed.minute},
                    {'hour': waktu_selesai_parsed.hour, 'minute': waktu_selesai_parsed.minute})
 
-        # Hapus cache `combined_logs` setelah membuat log baru agar cache tetap konsisten
+        # Hapus cache setelah membuat log baru
         cache.delete(cache_key_combined_logs)
+        cache.delete(cache_key_formatted_logs)
 
         return redirect(url_for('index'))
 
-    return render_template('create_log.html', create_log_id=create_log_id)
+    return render_template('create_log.html',
+                           create_log_id=create_log_id,
+                           error_message=error_message,
+                           formatted_logs=formatted_logs)
 
 
 @app.route('/edit-log/<log_id>', methods=['GET', 'POST'])
@@ -249,6 +287,7 @@ def edit_log_view(log_id):
     cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
     cache_key_latest_period = f'latest_period_{session["sessionid"]}'
     cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
+    cache_key_formatted_logs = f'formatted_logs_{session["sessionid"]}'
 
     # Cek cache untuk `lowongan_data`
     lowongan_data = cache.get(cache_key_lowongan)
@@ -270,6 +309,28 @@ def edit_log_view(log_id):
                                                             session['sessionid'], latest_period)
         cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 menit
 
+    # Cek cache untuk `formatted_logs`
+    formatted_logs = cache.get(cache_key_formatted_logs)
+    if formatted_logs is None:
+        formatted_logs = []
+        for log in combined_logs:
+            if log['Tanggal'] and log['Jam Mulai'] and log['Jam Selesai']:
+                day, month, year = log['Tanggal'].split('-')
+                formatted_date = f"{year}-{month}-{day}"
+
+                formatted_logs.append({
+                    'title': log['Kategori'],
+                    'start': f"{formatted_date}T{log['Jam Mulai']}",
+                    'end': f"{formatted_date}T{log['Jam Selesai']}",
+                    'description': log['Deskripsi Tugas'],
+                    'duration': str(log['Durasi (Menit)']),
+                    'kategori': log['Kategori'],
+                    'status': log['Status'],
+                    'edit_url': url_for('edit_log_view', log_id=log['LogID']),
+                    'course': log.get('Mata Kuliah', 'Unknown Course')
+                })
+        cache.set(cache_key_formatted_logs, formatted_logs, timeout=60)  # Cache selama 1 menit
+
     # Cari log berdasarkan log_id dari combined_logs
     log_to_edit = next((log for log in combined_logs if log.get('LogID') == log_id), None)
 
@@ -282,7 +343,11 @@ def edit_log_view(log_id):
             '%Y-%m-%d')  # Konversi ke 'yyyy-MM-dd' untuk HTML input[type="date"]
     except ValueError:
         error_message = "Format tanggal pada log tidak valid."
-        return render_template('edit_log.html', log_id=log_id, log=log_to_edit, error_message=error_message)
+        return render_template('edit_log.html',
+                               log_id=log_id,
+                               log=log_to_edit,
+                               error_message=error_message,
+                               formatted_logs=formatted_logs)
 
     # Jika POST, lakukan update
     if request.method == 'POST':
@@ -309,24 +374,30 @@ def edit_log_view(log_id):
             waktu_selesai_parsed = datetime.strptime(waktu_selesai, '%H:%M').time()
         except ValueError as e:
             error_message = "Format waktu atau tanggal tidak valid."
-            return render_template('edit_log.html', log_id=log_id, error_message=error_message, log=log_to_edit)
+            return render_template('edit_log.html',
+                                   log_id=log_id,
+                                   error_message=error_message,
+                                   log=log_to_edit,
+                                   formatted_logs=formatted_logs)
 
         # Validasi: hanya izinkan menit yang bernilai 00, 15, 30, atau 45
         if waktu_mulai_parsed.minute not in [0, 15, 30, 45]:
             error_message = "Waktu mulai harus memiliki menit 00, 15, 30, atau 45!"
         elif waktu_selesai_parsed.minute not in [0, 15, 30, 45]:
             error_message = "Waktu selesai harus memiliki menit 00, 15, 30, atau 45!"
-        # Validasi tanggal: pastikan saat ini sudah lebih dari pukul 7 WIB
         elif tanggal_parsed == today_wib and current_time_wib < batas_waktu_wib:
             error_message = "Anda belum bisa mengisi log untuk hari ini sebelum jam 7 pagi WIB!"
         elif tanggal_parsed > today_wib:
             error_message = "Tanggal tidak bisa di masa depan!"
-        # Cek apakah waktu mulai < waktu selesai
         elif waktu_mulai_parsed >= waktu_selesai_parsed:
             error_message = "Waktu mulai harus lebih awal dari waktu selesai!"
 
         if error_message:
-            return render_template('edit_log.html', log_id=log_id, error_message=error_message, log=log_to_edit)
+            return render_template('edit_log.html',
+                                   log_id=log_id,
+                                   error_message=error_message,
+                                   log=log_to_edit,
+                                   formatted_logs=formatted_logs)
 
         # Hitung durasi (dalam menit)
         waktu_mulai_combined = datetime.combine(tanggal_parsed, waktu_mulai_parsed)
@@ -344,6 +415,7 @@ def edit_log_view(log_id):
             'Durasi (Menit)': durasi,
             'Kategori': kategori_log,
             'Deskripsi Tugas': deskripsi,
+            'LogID': log_id  # Tambahkan LogID ke edited_log
         }
         combined_logs.append(edited_log)
 
@@ -355,7 +427,11 @@ def edit_log_view(log_id):
             for log1, log2 in overlap_logs:
                 log1_course = log1.get('Mata Kuliah', 'Unknown Course')
                 overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
-            return render_template('edit_log.html', log_id=log_id, error_message=overlap_message, log=log_to_edit)
+            return render_template('edit_log.html',
+                                   log_id=log_id,
+                                   error_message=overlap_message,
+                                   log=log_to_edit,
+                                   formatted_logs=formatted_logs)
 
         # Update log
         update_log(
@@ -373,11 +449,15 @@ def edit_log_view(log_id):
 
         # Hapus cache setelah update untuk menjaga konsistensi data
         cache.delete(cache_key_combined_logs)
+        cache.delete(cache_key_formatted_logs)  # Hapus juga cache formatted_logs
 
         return redirect(url_for('index'))
 
     # Jika GET, render form dengan data prefilled dari log_to_edit
-    return render_template('edit_log.html', log_id=log_id, log=log_to_edit)
+    return render_template('edit_log.html',
+                           log_id=log_id,
+                           log=log_to_edit,
+                           formatted_logs=formatted_logs)
 
 
 @app.route('/delete-log/<log_id>', methods=['POST'])
@@ -439,6 +519,7 @@ def calendar_view():
     cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
     cache_key_latest_period = f'latest_period_{session["sessionid"]}'
     cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
+    cache_key_formatted_logs = f'formatted_logs_{session["sessionid"]}'
 
     # Cek cache untuk `lowongan_data`
     lowongan_data = cache.get(cache_key_lowongan)
@@ -460,7 +541,58 @@ def calendar_view():
                                                             session['sessionid'], latest_period)
         cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 menit
 
-    # Convert logs to FullCalendar-compatible format
+    # Cek cache untuk `formatted_logs`
+    formatted_logs = cache.get(cache_key_formatted_logs)
+    if formatted_logs is None:
+        formatted_logs = []
+        for log in combined_logs:
+            if log['Tanggal'] and log['Jam Mulai'] and log['Jam Selesai']:
+                day, month, year = log['Tanggal'].split('-')
+                formatted_date = f"{year}-{month}-{day}"  # Convert to 'YYYY-MM-DD' format
+
+                formatted_logs.append({
+                    'title': log['Kategori'],
+                    'start': f"{formatted_date}T{log['Jam Mulai']}",
+                    'end': f"{formatted_date}T{log['Jam Selesai']}",
+                    'description': log['Deskripsi Tugas'],
+                    'duration': str(log['Durasi (Menit)']),
+                    'kategori': log['Kategori'],
+                    'status': log['Status'],
+                    'edit_url': url_for('edit_log_view', log_id=log['LogID']),
+                    'course': log.get('Mata Kuliah', 'Unknown Course')
+                })
+        cache.set(cache_key_formatted_logs, formatted_logs, timeout=60)  # Cache selama 1 menit
+
+    return render_template('calendar.html', formatted_logs=formatted_logs)
+
+
+@app.route('/update-data', methods=['GET'])
+def update_data():
+    if 'sessionid' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session['sessionid'])
+    session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
+
+    cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
+    cache_key_latest_period = f'latest_period_{session["sessionid"]}'
+    cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
+    cache_key_formatted_logs = f'formatted_logs_{session["sessionid"]}'
+
+    # Fetch and update cache
+    lowongan_data = get_accepted_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'])
+    cache.set(cache_key_lowongan, lowongan_data, timeout=3600 * 12)  # Cache selama 12 jam
+
+    latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
+                                                               session['sessionid'], lowongan_data)
+    cache.set(cache_key_latest_period, latest_period, timeout=60)  # Cache selama 1 menit
+
+    combined_logs = get_combined_logs_for_latest_period_parallel(session_req, session['csrftoken_cookie'],
+                                                                 session['sessionid'], latest_period)
+    cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 menit
+
+    # Update formatted_logs cache
     formatted_logs = []
     for log in combined_logs:
         if log['Tanggal'] and log['Jam Mulai'] and log['Jam Selesai']:
@@ -478,34 +610,7 @@ def calendar_view():
                 'edit_url': url_for('edit_log_view', log_id=log['LogID']),
                 'course': log.get('Mata Kuliah', 'Unknown Course')
             })
-
-    return render_template('calendar.html', formatted_logs=formatted_logs)
-
-
-@app.route('/update-data', methods=['GET'])
-def update_data():
-    if 'sessionid' not in session:
-        return jsonify({'error': 'User not logged in'}), 401
-
-    session_req = requests.Session()
-    session_req.cookies.set('sessionid', session['sessionid'])
-    session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
-
-    cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
-    cache_key_latest_period = f'latest_period_{session["sessionid"]}'
-    cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
-
-    # Fetch and update cache
-    lowongan_data = get_accepted_lowongan(session_req, session['csrftoken_cookie'], session['sessionid'])
-    cache.set(cache_key_lowongan, lowongan_data, timeout=3600 * 12)  # Cache selama 12 jam
-
-    latest_period = filter_by_latest_period_and_add_create_log(session_req, session['csrftoken_cookie'],
-                                                               session['sessionid'], lowongan_data)
-    cache.set(cache_key_latest_period, latest_period, timeout=60)  # Cache selama 1 menit
-
-    combined_logs = get_combined_logs_for_latest_period_parallel(session_req, session['csrftoken_cookie'],
-                                                                 session['sessionid'], latest_period)
-    cache.set(cache_key_combined_logs, combined_logs, timeout=60)  # Cache selama 1 menit
+    cache.set(cache_key_formatted_logs, formatted_logs, timeout=60)  # Cache selama 1 menit
 
     return jsonify({'message': 'Data updated successfully'})
 
