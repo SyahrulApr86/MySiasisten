@@ -87,29 +87,155 @@
             width: 90%;
             max-width: none;
         }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: #ffffff !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .navbar-brand i {
+            color: #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(15deg);
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+        }
+
+        .nav-link i {
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        .navbar-text {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-text i {
+            color: #ffd700;
+        }
+
+        .navbar-text strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: rgba(0, 0, 0, 0.1);
+                padding: 1rem;
+                border-radius: 10px;
+                margin-top: 1rem;
+            }
+
+            .navbar-text {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 1rem 0;
+                margin: 0.5rem 0;
+            }
+
+            .btn-logout {
+                margin: 0.5rem 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap me-2"></i>MySiasisten</a>
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-graduation-cap me-2"></i>MySiasisten
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                    <a class="nav-link active" aria-current="page" href="/">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/calendar"><i class="fas fa-calendar-alt me-1"></i>Calendar</a>
+                    <a class="nav-link" href="/calendar">
+                        <i class="fas fa-calendar-alt me-1"></i>Calendar
+                    </a>
                 </li>
             </ul>
             <span class="navbar-text">
                 <i class="fas fa-user me-1"></i>Logged in as: <strong>{{ session['username'] }}</strong>
             </span>
-            <a href="{{ url_for('logout') }}" class="btn btn-danger ms-2">Logout</a> <!-- Tombol Logout -->
+            <a href="{{ url_for('logout') }}" class="btn btn-logout">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
         </div>
     </div>
 </nav>

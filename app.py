@@ -71,7 +71,12 @@ def index():
                 'title': log['Kategori'],
                 'start': f"{formatted_date}T{log['Jam Mulai']}",
                 'end': f"{formatted_date}T{log['Jam Selesai']}",
-                'description': log['Deskripsi Tugas']
+                'description': log['Deskripsi Tugas'],
+                'duration': str(log['Durasi (Menit)']),
+                'kategori': log['Kategori'],
+                'status': log['Status'],
+                'edit_url': url_for('edit_log_view', log_id=log['LogID']),
+                'course': log.get('Mata Kuliah', 'Unknown Course')
             })
 
     return render_template('index.html', latest_period=latest_period, combined_logs=combined_logs,
@@ -466,7 +471,12 @@ def calendar_view():
                 'title': log['Kategori'],
                 'start': f"{formatted_date}T{log['Jam Mulai']}",
                 'end': f"{formatted_date}T{log['Jam Selesai']}",
-                'description': log['Deskripsi Tugas']
+                'description': log['Deskripsi Tugas'],
+                'duration': str(log['Durasi (Menit)']),
+                'kategori': log['Kategori'],
+                'status': log['Status'],
+                'edit_url': url_for('edit_log_view', log_id=log['LogID']),
+                'course': log.get('Mata Kuliah', 'Unknown Course')
             })
 
     return render_template('calendar.html', formatted_logs=formatted_logs)

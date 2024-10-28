@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -33,7 +34,121 @@
         }
 
         .navbar {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: #ffffff !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .navbar-brand i {
+            color: #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(15deg);
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+        }
+
+        .nav-link i {
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        .navbar-text {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-text i {
+            color: #ffd700;
+        }
+
+        .navbar-text strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: rgba(0, 0, 0, 0.1);
+                padding: 1rem;
+                border-radius: 10px;
+                margin-top: 1rem;
+            }
+
+            .navbar-text {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 1rem 0;
+                margin: 0.5rem 0;
+            }
+
+            .btn-logout {
+                margin: 0.5rem 0;
+                width: 100%;
+            }
         }
 
         .btn-info, .btn-success {
@@ -176,29 +291,135 @@
             height: 100%;
         }
 
+        .modal-header {
+            background-color: #007bff;
+            color: white;
+        }
+        .modal-body {
+            background-color: #f8f9fa;
+        }
+        .modal-footer {
+            background-color: #f1f1f1;
+        }
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .edit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #218838;
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .modal-header.bg-gradient {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .detail-icon {
+            background: #f0f2f5;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4e54c8;
+        }
+
+        .detail-content label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .detail-content p {
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #eee;
+            padding: 1rem 2rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal.fade .modal-dialog {
+            transform: scale(0.8);
+            transition: transform 0.3s ease-out;
+        }
+
+        .modal.show .modal-dialog {
+            transform: scale(1);
+        }
     </style>
 </head>
 <body>
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap me-2"></i>MySiasisten</a>
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-graduation-cap me-2"></i>MySiasisten
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                    <a class="nav-link active" aria-current="page" href="/">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/calendar"><i class="fas fa-calendar-alt me-1"></i>Calendar</a>
+                    <a class="nav-link" href="/calendar">
+                        <i class="fas fa-calendar-alt me-1"></i>Calendar
+                    </a>
                 </li>
             </ul>
             <span class="navbar-text">
                 <i class="fas fa-user me-1"></i>Logged in as: <strong>{{ session['username'] }}</strong>
             </span>
-            <a href="{{ url_for('logout') }}" class="btn btn-danger ms-2">Logout</a> <!-- Tombol Logout -->
+            <a href="{{ url_for('logout') }}" class="btn btn-logout">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
         </div>
     </div>
 </nav>
@@ -363,6 +584,105 @@
         <a class="text-dark" href="#">Terms of Service</a>
     </div>
 </footer>
+
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient">
+                <h5 class="modal-title" id="eventModalLabel">
+                    <i class="fas fa-calendar-check me-2"></i>Event Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="event-details">
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-heading"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Title</label>
+                            <p id="modalTitle" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Course</label>
+                            <p id="modalCourse" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Time</label>
+                            <p class="mb-0">
+                                Start: <span id="modalStart"></span><br>
+                                End: <span id="modalEnd"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-align-left"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Description</label>
+                            <p id="modalDescription" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Duration</label>
+                            <p id="modalDuration" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Category</label>
+                            <p id="modalKategori" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="detail-content">
+                            <label>Status</label>
+                            <p id="modalStatus" class="mb-0"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+                <a href="#" id="editEventBtn" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <!-- Bootstrap JS and dependencies -->
@@ -397,10 +717,35 @@
             title: "{{ log.title }}",
                 start: "{{ log.start }}",
             end: "{{ log.end }}",
-            description: "{{ log.description }}"
+            extendedProps: {
+            description: "{{ log.description }}",
+                duration: "{{ log.duration }}",
+                kategori: "{{ log.kategori }}",
+                status: "{{ log.status }}",
+                editUrl: "{{ log.edit_url }}",
+                course: "{{ log.course }}"
+        }
         },
         {% endfor %}
-    ]
+    ],
+        eventClick: function(info) {
+            // Memasukkan data ke dalam modal
+            document.getElementById('modalTitle').textContent = info.event.title || 'N/A';
+            document.getElementById('modalStart').textContent = info.event.start ? info.event.start.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
+            document.getElementById('modalEnd').textContent = info.event.end ? info.event.end.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
+            document.getElementById('modalDescription').textContent = info.event.extendedProps.description || 'N/A';
+            document.getElementById('modalDuration').textContent = info.event.extendedProps.duration ? `${info.event.extendedProps.duration} minutes` : 'N/A';
+            document.getElementById('modalKategori').textContent = info.event.extendedProps.kategori || 'N/A';
+            document.getElementById('modalStatus').textContent = info.event.extendedProps.status || 'N/A';
+            document.getElementById('modalCourse').textContent = info.event.extendedProps.course || 'N/A';
+
+            // Mengatur URL edit di tombol edit
+            document.getElementById('editEventBtn').href = info.event.extendedProps.editUrl;
+
+            // Menampilkan modal
+            var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+            eventModal.show();
+        }
     });
         calendar.render();
     });
