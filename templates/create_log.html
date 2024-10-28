@@ -28,6 +28,7 @@
             padding: 30px;
             margin-top: 40px;
             position: relative;
+            margin-bottom: 20px;
         }
 
         .container::before {
@@ -63,20 +64,24 @@
 
         .btn-primary {
             width: 100%;
-            background-color: #0056b3;
             border: none;
             transition: all 0.3s ease;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
         }
 
         .btn-primary:hover {
             background-color: #004494;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(78, 84, 200, 0.4);
         }
 
         .form-label {
             font-weight: 600;
             color: #343a40;
+            margin-bottom: 0.5rem;
         }
 
         .form-control:focus {
@@ -217,16 +222,9 @@
                 width: 100%;
             }
         }
+
         .container-fluid {
             padding: 0 30px;
-        }
-
-        .container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 20px;
         }
 
         #calendar-container {
@@ -236,12 +234,7 @@
             padding: 20px;
             height: 100%;
             min-height: 700px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #343a40;
-            margin-bottom: 0.5rem;
+            margin: 0 auto 20px;
         }
 
         .form-control, .form-select {
@@ -253,20 +246,6 @@
         .form-control:focus, .form-select:focus {
             border-color: #4e54c8;
             box-shadow: 0 0 0 0.2rem rgba(78, 84, 200, 0.25);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4e54c8, #8f94fb);
-            border: none;
-            padding: 0.75rem 2rem;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 84, 200, 0.4);
         }
 
         .alert-danger {
@@ -284,13 +263,20 @@
         }
         .modal-body {
             background-color: #f8f9fa;
+            padding: 2rem;
         }
         .modal-footer {
             background-color: #f1f1f1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 1rem;
         }
         .modal-content {
-            border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
         }
         .edit-btn {
             background-color: #28a745;
@@ -300,20 +286,10 @@
             background-color: #218838;
         }
 
-        .modal-content {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
         .modal-header.bg-gradient {
             background: linear-gradient(135deg, #4e54c8, #8f94fb);
             color: white;
             padding: 1.5rem;
-        }
-
-        .modal-body {
-            padding: 2rem;
         }
 
         .event-details {
@@ -351,13 +327,6 @@
             font-weight: 500;
         }
 
-        .modal-footer {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 1rem;
-        }
-
         .modal-footer .btn {
             width: 100%;
             padding: 10px;
@@ -392,6 +361,11 @@
             margin-right: 8px;
         }
 
+        @media (max-width: 768px) {
+            .legend-items-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
     </style>
 </head>
 <body>
@@ -631,17 +605,19 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Fungsi untuk menghasilkan warna berdasarkan string (course)
-        function stringToColor(str) {
+        // Fungsi untuk menghasilkan warna random antara merah dan biru
+        function stringToRedBlueColor(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
                 hash = str.charCodeAt(i) + ((hash << 5) - hash);
             }
 
-            // Membuat warna yang lebih soft/pastel
-            const h = Math.abs(hash % 360);   // Hue
-            const s = 50 + (hash % 30);       // Saturation
-            const l = 65 + (hash % 10);       // Lightness
+            // Menghasilkan warna antara merah (0) dan biru (240) dalam HSL
+            const h = Math.abs(hash) % 2 === 0 ?
+                0 + (Math.abs(hash) % 30) :  // Spektrum merah (0-30)
+                210 + (Math.abs(hash) % 30); // Spektrum biru (210-240)
+            const s = 60 + (hash % 20);  // Saturation antara 60-80%
+            const l = 65 + (hash % 15);  // Lightness antara 65-80%
 
             return `hsl(${h}, ${s}%, ${l}%)`;
         }
@@ -671,11 +647,10 @@
                 editUrl: "{{ log.edit_url }}",
                 course: "{{ log.course }}"
         },
-            // Mengatur warna berdasarkan course
             backgroundColor: function() {
                 const course = "{{ log.course }}";
                 if (!courseColors[course]) {
-                    courseColors[course] = stringToColor(course);
+                    courseColors[course] = stringToRedBlueColor(course);
                 }
                 return courseColors[course];
             }(),
@@ -684,11 +659,10 @@
         {% endfor %}
     ],
         eventDidMount: function(info) {
-            // Menambahkan tooltip yang menampilkan course
+            // Tooltip
             info.el.title = `Course: ${info.event.extendedProps.course}`;
         },
         eventClick: function(info) {
-            // Memasukkan data ke dalam modal
             document.getElementById('modalTitle').textContent = info.event.title || 'N/A';
             document.getElementById('modalStart').textContent = info.event.start ? info.event.start.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
             document.getElementById('modalEnd').textContent = info.event.end ? info.event.end.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
@@ -698,15 +672,75 @@
             document.getElementById('modalStatus').textContent = info.event.extendedProps.status || 'N/A';
             document.getElementById('modalCourse').textContent = info.event.extendedProps.course || 'N/A';
 
-            // Mengatur URL edit di tombol edit
             document.getElementById('editEventBtn').href = info.event.extendedProps.editUrl;
 
-            // Menampilkan modal
             var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
             eventModal.show();
         }
     });
+
         calendar.render();
+
+        // Membuat dan menambahkan legenda
+        const legendContainer = document.createElement('div');
+        legendContainer.style.marginTop = '20px';
+        legendContainer.style.padding = '15px';
+        legendContainer.style.backgroundColor = 'white';
+        legendContainer.style.borderRadius = '8px';
+        legendContainer.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+
+        // Judul legenda
+        const legendTitle = document.createElement('div');
+        legendTitle.textContent = 'Course Legend';
+        legendTitle.style.fontWeight = 'bold';
+        legendTitle.style.marginBottom = '10px';
+        legendTitle.style.fontSize = '14px';
+        legendContainer.appendChild(legendTitle);
+
+        // Container untuk item legenda
+        const legendItemsContainer = document.createElement('div');
+        legendItemsContainer.style.display = 'grid';
+        legendItemsContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+        legendItemsContainer.style.gap = '10px';
+
+        Object.entries(courseColors).sort().forEach(([course, color]) => {
+            const legendItem = document.createElement('div');
+            legendItem.style.display = 'flex';
+            legendItem.style.alignItems = 'center';
+            legendItem.style.padding = '5px';
+            legendItem.style.borderRadius = '4px';
+            legendItem.style.transition = 'background-color 0.3s';
+
+            // Hover effect
+            legendItem.onmouseover = () => {
+                legendItem.style.backgroundColor = '#f8f9fa';
+            };
+            legendItem.onmouseout = () => {
+                legendItem.style.backgroundColor = 'transparent';
+            };
+
+            const colorBox = document.createElement('div');
+            colorBox.style.width = '15px';
+            colorBox.style.height = '15px';
+            colorBox.style.backgroundColor = color;
+            colorBox.style.marginRight = '8px';
+            colorBox.style.borderRadius = '3px';
+            colorBox.style.flexShrink = '0';
+
+            const courseText = document.createElement('span');
+            courseText.textContent = course;
+            courseText.style.fontSize = '13px';
+            courseText.style.whiteSpace = 'nowrap';
+            courseText.style.overflow = 'hidden';
+            courseText.style.textOverflow = 'ellipsis';
+
+            legendItem.appendChild(colorBox);
+            legendItem.appendChild(courseText);
+            legendItemsContainer.appendChild(legendItem);
+        });
+
+        legendContainer.appendChild(legendItemsContainer);
+        calendarEl.parentNode.appendChild(legendContainer);
     });
 </script>
 <script>
