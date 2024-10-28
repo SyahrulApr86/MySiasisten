@@ -688,21 +688,25 @@
 <!-- Bootstrap JS and dependencies -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function (event) {
-            // Tombol yang memicu modal
-            var button = event.relatedTarget;
-            // Ambil data dari tombol yang dipilih
-            var logId = button.getAttribute('data-logid');
-            // Form penghapusan di dalam modal
-            var form = document.getElementById('deleteForm');
-            // Ubah action form sesuai log yang dipilih
-            form.action = '/delete-log/' + logId;
-        });
-    });
-
     document.addEventListener('DOMContentLoaded', function() {
+        // Fungsi untuk menghasilkan warna berdasarkan string (course)
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+
+            // Membuat warna yang lebih soft/pastel
+            const h = Math.abs(hash % 360);   // Hue
+            const s = 50 + (hash % 30);       // Saturation
+            const l = 65 + (hash % 10);       // Lightness
+
+            return `hsl(${h}, ${s}%, ${l}%)`;
+        }
+
+        // Menyimpan warna untuk setiap course
+        const courseColors = {};
+
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'timeGridWeek',
@@ -724,10 +728,23 @@
                 status: "{{ log.status }}",
                 editUrl: "{{ log.edit_url }}",
                 course: "{{ log.course }}"
-        }
+        },
+            // Mengatur warna berdasarkan course
+            backgroundColor: function() {
+                const course = "{{ log.course }}";
+                if (!courseColors[course]) {
+                    courseColors[course] = stringToColor(course);
+                }
+                return courseColors[course];
+            }(),
+            borderColor: 'transparent'
         },
         {% endfor %}
     ],
+        eventDidMount: function(info) {
+            // Menambahkan tooltip yang menampilkan course
+            info.el.title = `Course: ${info.event.extendedProps.course}`;
+        },
         eventClick: function(info) {
             // Memasukkan data ke dalam modal
             document.getElementById('modalTitle').textContent = info.event.title || 'N/A';
@@ -749,7 +766,6 @@
     });
         calendar.render();
     });
-
 </script>
 <script>
     function updateUserData() {
