@@ -7,15 +7,28 @@ services:
       - .:/app
     environment:
       FLASK_ENV: development
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
     networks:
       - shared-network
     depends_on:
       - redis
+      - celery
 
   redis:
     image: "redis:alpine"
     ports:
       - "6379:6379"
+    networks:
+      - shared-network
+
+  celery:
+    build: .
+    command: celery -A app.celery worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
     networks:
       - shared-network
 

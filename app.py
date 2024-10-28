@@ -3,7 +3,14 @@ import pytz
 from datetime import time
 from flask import jsonify
 from flask_caching import Cache
+from celery import Celery
 from log import *
+
+def make_celery(app):
+    celery = Celery(app.import_name, backend=app.config['CELERY_RESULT_BACKEND'],
+                    broker=app.config['CELERY_BROKER_URL'])
+    celery.conf.update(app.config)
+    return celery
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -12,9 +19,16 @@ app.config['CACHE_REDIS_HOST'] = 'redis'
 app.config['CACHE_REDIS_PORT'] = 6379
 app.config['CACHE_REDIS_DB'] = 0
 app.config['CACHE_REDIS_URL'] = 'redis://redis:6379/0'
-app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Timeout default 5 menit
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 
 cache = Cache(app)
+
+app.config.update(
+    CELERY_BROKER_URL='redis://redis:6379/0',
+    CELERY_RESULT_BACKEND='redis://redis:6379/0'
+)
+
+celery = make_celery(app)
 
 
 def format_date(date_str):
@@ -271,13 +285,37 @@ def create_log_view(create_log_id):
                            formatted_logs=formatted_logs)
 
 
+@celery.task(name="app.update_log_async")
+def update_log_async(session_data, log_data):
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session_data['sessionid'])
+    session_req.cookies.set('csrftoken', session_data['csrftoken_cookie'])
+
+    # Lakukan update log
+    update_log(
+        session=session_req,
+        csrftoken_cookie=session_data['csrftoken_cookie'],
+        sessionid=session_data['sessionid'],
+        csrfmiddlewaretoken=session_data['csrf_token'],
+        log_id=log_data['log_id'],
+        kategori_log=log_data['kategori_log'],
+        deskripsi=log_data['deskripsi'],
+        tanggal=log_data['tanggal'],
+        waktu_mulai=log_data['waktu_mulai'],
+        waktu_selesai=log_data['waktu_selesai']
+    )
+
+    # Hapus cache setelah update
+    cache.delete(log_data['cache_key_combined_logs'])
+    cache.delete(log_data['cache_key_formatted_logs'])
+
+
 @app.route('/edit-log/<log_id>', methods=['GET', 'POST'])
 def edit_log_view(log_id):
-    # Cek apakah user sudah login
     if 'sessionid' not in session:
         return redirect(url_for('login_page'))
 
-    error_message = None  # Variabel untuk menyimpan pesan error
+    error_message = None
 
     session_req = requests.Session()
     session_req.cookies.set('sessionid', session['sessionid'])
@@ -341,6 +379,7 @@ def edit_log_view(log_id):
         tanggal_obj = datetime.strptime(log_to_edit['Tanggal'], '%d-%m-%Y')
         log_to_edit['Tanggal'] = tanggal_obj.strftime(
             '%Y-%m-%d')  # Konversi ke 'yyyy-MM-dd' untuk HTML input[type="date"]
+
     except ValueError:
         error_message = "Format tanggal pada log tidak valid."
         return render_template('edit_log.html',
@@ -360,19 +399,16 @@ def edit_log_view(log_id):
 
         # Zona waktu WIB (UTC+7)
         wib = pytz.timezone('Asia/Jakarta')
-
-        # Waktu saat ini dalam zona waktu WIB
         now_wib = datetime.now(wib)
         current_time_wib = now_wib.time()
         today_wib = now_wib.date()
         batas_waktu_wib = time(7, 0)  # 7:00 AM WIB
 
         try:
-            # Parse tanggal dan waktu
             tanggal_parsed = datetime.strptime(tanggal, '%Y-%m-%d').date()
             waktu_mulai_parsed = datetime.strptime(waktu_mulai, '%H:%M').time()
             waktu_selesai_parsed = datetime.strptime(waktu_selesai, '%H:%M').time()
-        except ValueError as e:
+        except ValueError:
             error_message = "Format waktu atau tanggal tidak valid."
             return render_template('edit_log.html',
                                    log_id=log_id,
@@ -380,7 +416,7 @@ def edit_log_view(log_id):
                                    log=log_to_edit,
                                    formatted_logs=formatted_logs)
 
-        # Validasi: hanya izinkan menit yang bernilai 00, 15, 30, atau 45
+        # Validasi waktu
         if waktu_mulai_parsed.minute not in [0, 15, 30, 45]:
             error_message = "Waktu mulai harus memiliki menit 00, 15, 30, atau 45!"
         elif waktu_selesai_parsed.minute not in [0, 15, 30, 45]:
@@ -415,14 +451,13 @@ def edit_log_view(log_id):
             'Durasi (Menit)': durasi,
             'Kategori': kategori_log,
             'Deskripsi Tugas': deskripsi,
-            'LogID': log_id  # Tambahkan LogID ke edited_log
+            'LogID': log_id
         }
         combined_logs.append(edited_log)
 
         # Cek apakah ada overlap
         overlap, overlap_logs = is_overlap(combined_logs)
         if overlap:
-            # Formatkan pesan overlap menjadi lebih deskriptif
             overlap_message = "Log berikut menyebabkan overlap:<br>"
             for log1, log2 in overlap_logs:
                 log1_course = log1.get('Mata Kuliah', 'Unknown Course')
@@ -433,31 +468,30 @@ def edit_log_view(log_id):
                                    log=log_to_edit,
                                    formatted_logs=formatted_logs)
 
-        # Update log
-        update_log(
-            session=session_req,
-            csrftoken_cookie=session['csrftoken_cookie'],
-            sessionid=session['sessionid'],
-            csrfmiddlewaretoken=session['csrf_token'],
-            log_id=log_id,
-            kategori_log=kategori_log,
-            deskripsi=deskripsi,
-            tanggal={'day': tanggal_parsed.day, 'month': tanggal_parsed.month, 'year': tanggal_parsed.year},
-            waktu_mulai={'hour': waktu_mulai_parsed.hour, 'minute': waktu_mulai_parsed.minute},
-            waktu_selesai={'hour': waktu_selesai_parsed.hour, 'minute': waktu_selesai_parsed.minute}
-        )
+        # Persiapkan data untuk dikirim ke tugas asinkron
+        log_data = {
+            'log_id': log_id,
+            'kategori_log': kategori_log,
+            'deskripsi': deskripsi,
+            'tanggal': {'day': tanggal_parsed.day, 'month': tanggal_parsed.month, 'year': tanggal_parsed.year},
+            'waktu_mulai': {'hour': waktu_mulai_parsed.hour, 'minute': waktu_mulai_parsed.minute},
+            'waktu_selesai': {'hour': waktu_selesai_parsed.hour, 'minute': waktu_selesai_parsed.minute},
+            'cache_key_combined_logs': cache_key_combined_logs,
+            'cache_key_formatted_logs': cache_key_formatted_logs
+        }
 
-        # Hapus cache setelah update untuk menjaga konsistensi data
-        cache.delete(cache_key_combined_logs)
-        cache.delete(cache_key_formatted_logs)  # Hapus juga cache formatted_logs
+        session_data = {
+            'sessionid': session['sessionid'],
+            'csrftoken_cookie': session['csrftoken_cookie'],
+            'csrf_token': session['csrf_token']
+        }
+
+        # Panggil tugas asinkron untuk update log
+        update_log_async.delay(session_data, log_data)
 
         return redirect(url_for('index'))
 
-    # Jika GET, render form dengan data prefilled dari log_to_edit
-    return render_template('edit_log.html',
-                           log_id=log_id,
-                           log=log_to_edit,
-                           formatted_logs=formatted_logs)
+    return render_template('edit_log.html', log_id=log_id, log=log_to_edit, formatted_logs=formatted_logs)
 
 
 @app.route('/delete-log/<log_id>', methods=['POST'])
