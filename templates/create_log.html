@@ -415,6 +415,15 @@
 
                 <form method="POST" action="{{ url_for('create_log_view', create_log_id=create_log_id) }}">
                     <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-book me-2"></i>Mata Kuliah
+                        </label>
+                        <div class="form-control-plaintext border bg-light rounded px-3 py-2">
+                            {{ request.args.get('mata_kuliah', '') }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="kategori_log" class="form-label">Kategori Log</label>
                         <select class="form-select" id="kategori_log" name="kategori_log" required>
                             <option value="1">Asistensi/Tutorial</option>

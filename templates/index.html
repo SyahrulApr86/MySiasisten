@@ -520,10 +520,14 @@
                         <!-- Div untuk centering tombol -->
                         <div class="d-flex justify-content-center">
                             <!-- Tombol Edit -->
-                            <a href="{{ url_for('edit_log_view', log_id=log['LogID']) }}"
-                               class="btn btn-warning btn-sm me-2">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
+                            <form action="{{ url_for('edit_log_view', log_id=log['LogID']) }}"
+                                  method="GET"
+                                  class="me-2">
+                                <input type="hidden" name="mata_kuliah" value="{{ log['Mata Kuliah'] }}">
+                                <button type="submit" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </button>
+                            </form>
                             <!-- Tombol Hapus memicu modal konfirmasi -->
                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#deleteModal" data-logid="{{ log['LogID'] }}">

@@ -407,6 +407,16 @@
 
                 <form method="POST" action="{{ url_for('edit_log_view', log_id=log_id) }}" id="editLogForm">
                     <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-book me-2"></i>Mata Kuliah
+                        </label>
+                        <div class="form-control-plaintext border bg-light rounded px-3 py-2">
+                            {{ request.args.get('mata_kuliah', '') }}
+                        </div>
+                    </div>
+
+
+                    <div class="mb-3">
                         <label for="kategori_log" class="form-label">
                             <i class="fas fa-tags me-2"></i>Kategori Log
                         </label>
