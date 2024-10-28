@@ -410,6 +410,9 @@ def edit_log_view(log_id):
     # Cari log berdasarkan log_id dari combined_logs
     log_to_edit = next((log for log in combined_logs if log.get('LogID') == log_id), None)
 
+    if log_to_edit and log_to_edit['Status'] in ['disetujui dosen/TA', 'diproses']:
+        return redirect(url_for('index'))
+
     if not log_to_edit:
         return f"Log with ID {log_id} not found", 404
 

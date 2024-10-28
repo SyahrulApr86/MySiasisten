@@ -517,8 +517,8 @@
                         </a>
                     </td>
                     <td>
-                        <!-- Div untuk centering tombol -->
                         <div class="d-flex justify-content-center">
+                            {% if log.Status not in ['disetujui dosen/TA', 'diproses'] %}
                             <!-- Tombol Edit -->
                             <form action="{{ url_for('edit_log_view', log_id=log['LogID']) }}"
                                   method="GET"
@@ -528,14 +528,23 @@
                                     <i class="fas fa-edit me-1"></i>Edit
                                 </button>
                             </form>
-                            <!-- Tombol Hapus memicu modal konfirmasi -->
+                            <!-- Tombol Hapus -->
                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#deleteModal" data-logid="{{ log['LogID'] }}">
                                 <i class="fas fa-trash-alt"></i> Hapus
                             </button>
+                            {% else %}
+                            <!-- Tombol Edit Disabled -->
+                            <button type="button" class="btn btn-warning btn-sm me-2" disabled>
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                            <!-- Tombol Hapus Disabled -->
+                            <button type="button" class="btn btn-danger btn-sm" disabled>
+                                <i class="fas fa-trash-alt"></i> Hapus
+                            </button>
+                            {% endif %}
                         </div>
                     </td>
-
                 </tr>
                 {% endfor %}
                 </tbody>
