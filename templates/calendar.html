@@ -439,8 +439,19 @@
         },
         eventClick: function(info) {
             document.getElementById('modalTitle').textContent = info.event.title || 'N/A';
-            document.getElementById('modalStart').textContent = info.event.start ? info.event.start.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
-            document.getElementById('modalEnd').textContent = info.event.end ? info.event.end.toISOString().slice(0, 16).replace('T', ' ') : 'N/A';
+            document.getElementById('modalStart').textContent = info.event.start ?
+                info.event.start.toLocaleString('id-ID', {
+                    dateStyle: 'full',
+                    timeStyle: 'short',
+                    hour12: true
+                }) : 'N/A';
+
+            document.getElementById('modalEnd').textContent = info.event.end ?
+                info.event.end.toLocaleString('id-ID', {
+                    dateStyle: 'full',
+                    timeStyle: 'short',
+                    hour12: true
+                }) : 'N/A';
             document.getElementById('modalDescription').textContent = info.event.extendedProps.description || 'N/A';
             document.getElementById('modalDuration').textContent = info.event.extendedProps.duration ? `${info.event.extendedProps.duration} minutes` : 'N/A';
             document.getElementById('modalKategori').textContent = info.event.extendedProps.kategori || 'N/A';
