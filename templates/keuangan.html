@@ -170,13 +170,18 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/">
+                    <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">
                         <i class="fas fa-home me-1"></i>Home
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/calendar">
+                    <a class="nav-link {% if request.endpoint == 'calendar_view' %}active{% endif %}" href="{{ url_for('calendar_view') }}">
                         <i class="fas fa-calendar-alt me-1"></i>Calendar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'keuangan_view' %}active{% endif %}" href="{{ url_for('keuangan_view') }}">
+                        <i class="fas fa-money-bill-wave me-1"></i>Keuangan
                     </a>
                 </li>
             </ul>
@@ -217,19 +222,13 @@
                             <label for="year" class="form-label">
                                 <i class="far fa-calendar me-1"></i>Tahun
                             </label>
-                            <div class="input-group">
-                                <input type="number"
-                                       class="form-control"
-                                       name="year"
-                                       id="year"
-                                       value="{{ selected_year }}"
-                                       min="2000"
-                                       max="{{ current_year + 1 }}"
-                                       required>
-                                <button class="btn btn-outline-secondary" type="button">
-                                    Pilih Tahun
-                                </button>
-                            </div>
+                            <select class="form-select" name="year" id="year">
+                                {% for year in years %}
+                                <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="col-md-4">
                             <label for="month" class="form-label">
@@ -237,7 +236,7 @@
                             </label>
                             <select class="form-select" name="month" id="month">
                                 {% for month_num, month_name in months %}
-                                <option value="{{ month_num }}" {% if selected_month== month_num %}selected{% endif %}>
+                                <option value="{{ month_num }}" {% if selected_month == month_num %}selected{% endif %}>
                                     {{ month_name }}
                                 </option>
                                 {% endfor %}
@@ -249,12 +248,26 @@
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
 
     {% if keuangan_data %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>Tren Pembayaran
+                    </h5>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
@@ -346,6 +359,38 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_data.labels|tojson }},
+        datasets: [{
+            label: 'Total Pembayaran',
+            data: {{ chart_data.data|tojson }},
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+    }]
+    },
+        options: {
+            responsive: true,
+                scales: {
+                y: {
+                    beginAtZero: true,
+                        ticks: {
+                        callback: function(value) {
+                            return 'Rp' + value.toLocaleString('id-ID');
+                        }
+                    }
+                }
+            }
+        }
+    });
+    });
+</script>
 <script>
     function updateUserData() {
         fetch('/update-data')

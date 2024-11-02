@@ -1,11 +1,23 @@
+from dateutil.relativedelta import relativedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import pytz
 from datetime import time
+import time as t
 from flask import jsonify
 from flask_caching import Cache
 from celery import Celery
 from log import *
-from keuangan import get_keuangan_data, calculate_total_pembayaran
+from keuangan import get_keuangan_data, calculate_total_pembayaran, clean_currency
+from models import KeuanganData, db
+import os
+
+# Get the absolute path of the current directory
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Create instance directory if it doesn't exist
+instance_path = os.path.join(basedir, 'instance')
+if not os.path.exists(instance_path):
+    os.makedirs(instance_path)
 
 
 def make_celery(app):
@@ -15,23 +27,46 @@ def make_celery(app):
     return celery
 
 
-app = Flask(__name__)
+# Initialize Flask app
+app = Flask(__name__, instance_path=instance_path)
 app.secret_key = os.urandom(24)
+
+# Redis Configuration
 app.config['CACHE_TYPE'] = 'RedisCache'
-app.config['CACHE_REDIS_HOST'] = 'localhost'
+app.config['CACHE_REDIS_HOST'] = 'redis'
 app.config['CACHE_REDIS_PORT'] = 6379
 app.config['CACHE_REDIS_DB'] = 0
-app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
+app.config['CACHE_REDIS_URL'] = 'redis://redis:6379/0'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 
-cache = Cache(app)
+# Database Configuration
+db_path = os.path.join(instance_path, 'keuangan.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Celery Configuration
 app.config.update(
     CELERY_BROKER_URL='redis://redis:6379/0',
     CELERY_RESULT_BACKEND='redis://redis:6379/0'
 )
 
+# Initialize extensions
+cache = Cache(app)
 celery = make_celery(app)
+db.init_app(app)
+
+# Create database tables
+with app.app_context():
+    try:
+        db.create_all()
+        print(f"Database created successfully at {db_path}")
+    except Exception as e:
+        print(f"Error creating database: {str(e)}")
+        # Check if directory is writable
+        if not os.access(instance_path, os.W_OK):
+            print(f"Warning: No write permission in {instance_path}")
+        # Check directory permissions
+        print(f"Directory permissions: {oct(os.stat(instance_path).st_mode)[-3:]}")
 
 
 def format_date(date_str):
@@ -558,16 +593,13 @@ def delete_log_view(log_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    error_message = None  # Inisialisasi pesan error
+    error_message = None
 
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
-        # Create a session
         session_req = requests.Session()
-
-        # Call the login function
         csrf_token, csrftoken_cookie, sessionid = login(session_req, username, password)
 
         if sessionid:
@@ -575,6 +607,16 @@ def login_page():
             session['csrf_token'] = csrf_token
             session['sessionid'] = sessionid
             session['csrftoken_cookie'] = csrftoken_cookie
+
+            # Start historical data fetch task
+            session_data = {
+                'csrf_token': csrf_token,
+                'csrftoken_cookie': csrftoken_cookie,
+                'sessionid': sessionid
+            }
+
+            fetch_historical_keuangan.delay(username, session_data)
+
             return redirect(url_for('index'))
         else:
             error_message = "Login gagal, silakan periksa username atau password Anda."
@@ -690,16 +732,89 @@ def update_data():
 
     return jsonify({'message': 'Data updated successfully'})
 
+
+@celery.task(name="app.fetch_historical_keuangan")
+def fetch_historical_keuangan(username, session_data):
+    with app.app_context():
+        app.logger.info(f"Fetching historical data for {username}")
+
+        session_req = requests.Session()
+        session_req.cookies.set('sessionid', session_data['sessionid'])
+        session_req.cookies.set('csrftoken', session_data['csrftoken_cookie'])
+
+        current_date = datetime.now()
+        start_year = 2021
+        end_year = current_date.year
+
+        try:
+            # Fetch dan simpan data historis
+            for year in range(start_year, end_year + 1):
+                for month in range(1, 13):
+                    app.logger.info(f"Fetching data for {year}-{month}")
+
+                    # Skip future months
+                    if year == current_date.year and month > current_date.month:
+                        continue
+
+                    # Cek apakah data sudah ada di DB
+                    existing_data = KeuanganData.query.filter_by(
+                        username=username,
+                        tahun=year,
+                        bulan=month
+                    ).first()
+
+                    if not existing_data:
+                        data = get_keuangan_data(
+                            username=username,
+                            session=session_req,
+                            csrf_token=session_data['csrf_token'],
+                            csrftoken_cookie=session_data['csrftoken_cookie'],
+                            sessionid=session_data['sessionid'],
+                            year=year,
+                            month=month
+                        )
+
+                        if data:
+                            for entry in data:
+                                keuangan = KeuanganData(
+                                    username=username,
+                                    npm=entry['NPM'],
+                                    asisten=entry['Asisten'],
+                                    tahun=year,
+                                    bulan=month,
+                                    mata_kuliah=entry['Mata_Kuliah'],
+                                    jumlah_jam=float(entry['Jumlah_Jam'].replace(' Jam', '')),
+                                    honor_per_jam=clean_currency(entry['Honor_Per_Jam']),
+                                    jumlah_pembayaran=clean_currency(entry['Jumlah_Pembayaran']),
+                                    status=entry['Status']
+                                )
+                                db.session.add(keuangan)
+
+                            db.session.commit()
+
+                    # Delay untuk menghindari rate limiting
+                    t.sleep(1)
+
+        except Exception as e:
+            app.logger.error(f"Error fetching historical data: {str(e)}")
+            raise
+
+
 @app.route('/keuangan', methods=['GET', 'POST'])
 def keuangan_view():
     if 'sessionid' not in session:
         return redirect(url_for('login_page'))
 
+    # Buat session request
     session_req = requests.Session()
     session_req.cookies.set('sessionid', session['sessionid'])
     session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
 
-    current_year = datetime.now().year
+    # Setup date variables
+    current_date = datetime.now()
+    current_year = current_date.year
+
+    # Data untuk dropdown
     years = range(current_year - 5, current_year + 2)
     months = [
         (1, 'Januari'), (2, 'Februari'), (3, 'Maret'),
@@ -708,17 +823,19 @@ def keuangan_view():
         (10, 'Oktober'), (11, 'November'), (12, 'Desember')
     ]
 
+    # Inisialisasi variabel
     keuangan_data = None
     total_pembayaran = 0
     status_totals = {}
     selected_year = current_year
-    selected_month = datetime.now().month
+    selected_month = current_date.month
 
     if request.method == 'POST':
         try:
             selected_year = int(request.form.get('year'))
             selected_month = int(request.form.get('month'))
 
+            # Selalu fetch dari siasisten untuk data detail pembayaran
             cache_key = f'keuangan_data_{session["sessionid"]}_{selected_year}_{selected_month}'
             keuangan_data = cache.get(cache_key)
 
@@ -732,7 +849,8 @@ def keuangan_view():
                     year=selected_year,
                     month=selected_month
                 )
-                cache.set(cache_key, keuangan_data, timeout=3600)
+                if keuangan_data:
+                    cache.set(cache_key, keuangan_data, timeout=3600)
 
             if keuangan_data:
                 total_pembayaran, status_totals = calculate_total_pembayaran(keuangan_data)
@@ -742,6 +860,54 @@ def keuangan_view():
         except Exception as e:
             flash(f"Error mengambil data: {str(e)}", 'error')
             app.logger.error(f"Error in keuangan_view: {str(e)}")
+
+    # Ambil data statistik untuk chart dari database
+    try:
+        stats = db.session.query(
+            KeuanganData.tahun,
+            KeuanganData.bulan,
+            db.func.sum(KeuanganData.jumlah_pembayaran).label('total')
+        ).filter_by(
+            username=session['username']
+        ).group_by(
+            KeuanganData.tahun,
+            KeuanganData.bulan
+        ).order_by(
+            KeuanganData.tahun,
+            KeuanganData.bulan
+        ).all()
+
+        # Format data untuk chart
+        chart_data = {
+            'labels': [f"{row.tahun}-{row.bulan:02d}" for row in stats],
+            'data': [float(row.total) for row in stats]
+        }
+
+        # Hitung statistik tambahan
+        if stats:
+            total_all_time = sum(float(row.total) for row in stats)
+            avg_monthly = total_all_time / len(stats)
+            max_monthly = max(float(row.total) for row in stats)
+            min_monthly = min(float(row.total) for row in stats)
+
+            summary_stats = {
+                'total_all_time': total_all_time,
+                'avg_monthly': avg_monthly,
+                'max_monthly': max_monthly,
+                'min_monthly': min_monthly,
+                'total_months': len(stats)
+            }
+        else:
+            summary_stats = None
+            chart_data = {'labels': [], 'data': []}
+
+    except Exception as e:
+        app.logger.error(f"Error fetching statistics: {str(e)}")
+        summary_stats = None
+        chart_data = {'labels': [], 'data': []}
+
+    # Get status untuk progress fetch historis
+    fetch_status = cache.get(f'fetch_status_{session["username"]}')
 
     return render_template(
         'keuangan.html',
@@ -753,8 +919,12 @@ def keuangan_view():
         selected_year=selected_year,
         selected_month=selected_month,
         current_year=current_year,
-        current_month=datetime.now().month
+        current_month=current_date.month,
+        chart_data=chart_data,
+        summary_stats=summary_stats,
+        fetch_status=fetch_status
     )
+
 
 @app.route('/logout', methods=['GET'])
 def logout():

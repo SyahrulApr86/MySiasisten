@@ -69,14 +69,19 @@ def get_keuangan_data(username, session, csrf_token, csrftoken_cookie, sessionid
     return data
 
 
-def clean_currency(value):
+def clean_currency(value, app=None):
     """
     Clean currency string and convert to float.
     Example: 'Rp27.500,00' -> 27500.0
     """
     try:
+        if not isinstance(value, str):
+            return 0.0
         # Hapus 'Rp' dan spasi
         value = value.replace('Rp', '').replace(' ', '')
+        # Hapus .00 di akhir jika ada
+        if value.endswith(',00'):
+            value = value[:-3]
         # Ganti titik ribuan dengan ''
         value = value.replace('.', '')
         # Ganti koma desimal dengan titik
@@ -84,7 +89,7 @@ def clean_currency(value):
         # Konversi ke float
         return float(value)
     except (ValueError, AttributeError) as e:
-        print(f"Error cleaning currency value: {value}, Error: {str(e)}")
+        app.logger.error(f"Error cleaning currency value: {value}, Error: {str(e)}")
         return 0.0
 
 

@@ -537,5 +537,5 @@ fabric.properties
 
 .idea/*
 
-
+instance/keuangan.db
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all

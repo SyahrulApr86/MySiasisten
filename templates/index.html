@@ -399,13 +399,18 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/">
+                    <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">
                         <i class="fas fa-home me-1"></i>Home
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/calendar">
+                    <a class="nav-link {% if request.endpoint == 'calendar_view' %}active{% endif %}" href="{{ url_for('calendar_view') }}">
                         <i class="fas fa-calendar-alt me-1"></i>Calendar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'keuangan_view' %}active{% endif %}" href="{{ url_for('keuangan_view') }}">
+                        <i class="fas fa-money-bill-wave me-1"></i>Keuangan
                     </a>
                 </li>
             </ul>
@@ -418,6 +423,7 @@
         </div>
     </div>
 </nav>
+
 
 <div class="container content mt-4 custom-container">
     <!-- Breadcrumb -->
