@@ -693,6 +693,7 @@ def update_data():
     session_req.cookies.set('sessionid', session['sessionid'])
     session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
 
+    # Cache keys
     cache_key_lowongan = f'lowongan_data_{session["sessionid"]}'
     cache_key_latest_period = f'latest_period_{session["sessionid"]}'
     cache_key_combined_logs = f'combined_logs_{session["sessionid"]}'
@@ -729,6 +730,47 @@ def update_data():
                 'course': log.get('Mata Kuliah', 'Unknown Course')
             })
     cache.set(cache_key_formatted_logs, formatted_logs, timeout=60)  # Cache selama 1 menit
+
+    # Update keuangan data cache for the current and previous month
+    current_date = datetime.now()
+    current_year = current_date.year
+    current_month = current_date.month
+
+    # Cache current month keuangan data
+    cache_key_current = f'keuangan_data_{session["sessionid"]}_{current_year}_{current_month}'
+    keuangan_data_current = get_keuangan_data(
+        username=session['username'],
+        session=session_req,
+        csrf_token=session['csrf_token'],
+        csrftoken_cookie=session['csrftoken_cookie'],
+        sessionid=session['sessionid'],
+        year=current_year,
+        month=current_month
+    )
+    if keuangan_data_current:
+        cache.set(cache_key_current, keuangan_data_current, timeout=60)
+
+    # Handle previous month with correct year
+    if current_month == 1:
+        previous_month = 12
+        previous_year = current_year - 1
+    else:
+        previous_month = current_month - 1
+        previous_year = current_year
+
+    # Cache previous month keuangan data
+    cache_key_previous = f'keuangan_data_{session["sessionid"]}_{previous_year}_{previous_month}'
+    keuangan_data_previous = get_keuangan_data(
+        username=session['username'],
+        session=session_req,
+        csrf_token=session['csrf_token'],
+        csrftoken_cookie=session['csrftoken_cookie'],
+        sessionid=session['sessionid'],
+        year=previous_year,
+        month=previous_month
+    )
+    if keuangan_data_previous:
+        cache.set(cache_key_previous, keuangan_data_previous, timeout=60)
 
     return jsonify({'message': 'Data updated successfully'})
 
@@ -850,7 +892,7 @@ def keuangan_view():
                     month=selected_month
                 )
                 if keuangan_data:
-                    cache.set(cache_key, keuangan_data, timeout=3600)
+                    cache.set(cache_key, keuangan_data, timeout=60)
 
             if keuangan_data:
                 total_pembayaran, status_totals = calculate_total_pembayaran(keuangan_data)
