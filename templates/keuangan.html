@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keuangan - MySiasisten</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            padding-top: 60px;
+            background-color: #f8f9fa;
+        }
+
+        .detail-content label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .detail-content p {
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: #ffffff !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .navbar-brand i {
+            color: #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(15deg);
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+        }
+
+        .nav-link i {
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        .navbar-text {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-text i {
+            color: #ffd700;
+        }
+
+        .navbar-text strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: rgba(0, 0, 0, 0.1);
+                padding: 1rem;
+                border-radius: 10px;
+                margin-top: 1rem;
+            }
+
+            .navbar-text {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 1rem 0;
+                margin: 0.5rem 0;
+            }
+
+            .btn-logout {
+                margin: 0.5rem 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-graduation-cap me-2"></i>MySiasisten
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/calendar">
+                        <i class="fas fa-calendar-alt me-1"></i>Calendar
+                    </a>
+                </li>
+            </ul>
+            <span class="navbar-text">
+                <i class="fas fa-user me-1"></i>Logged in as: <strong>{{ session['username'] }}</strong>
+            </span>
+            <a href="{{ url_for('logout') }}" class="btn btn-logout">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+</nav>
+<!-- End Navbar -->
+
+<!-- Content -->
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="fas fa-money-bill-wave text-primary me-2"></i>Data Keuangan
+                    </h2>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="year" class="form-label">
+                                <i class="far fa-calendar me-1"></i>Tahun
+                            </label>
+                            <div class="input-group">
+                                <input type="number"
+                                       class="form-control"
+                                       name="year"
+                                       id="year"
+                                       value="{{ selected_year }}"
+                                       min="2000"
+                                       max="{{ current_year + 1 }}"
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button">
+                                    Pilih Tahun
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="month" class="form-label">
+                                <i class="far fa-calendar-alt me-1"></i>Bulan
+                            </label>
+                            <select class="form-select" name="month" id="month">
+                                {% for month_num, month_name in months %}
+                                <option value="{{ month_num }}" {% if selected_month== month_num %}selected{% endif %}>
+                                    {{ month_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>Tampilkan Data
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if keuangan_data %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Ringkasan Pembayaran
+                    </h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Total Keseluruhan</h6>
+                                    <h4 class="card-text text-primary">
+                                        {{ "Rp{:,.2f}".format(total_pembayaran).replace(',', '_').replace('.',
+                                        ',').replace('_', '.') }}
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Breakdown per Status</h6>
+                                    {% for status, amount in status_totals.items() %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-capitalize">{{ status }}</span>
+                                        <span class="badge bg-primary">
+                                            {{ "Rp{:,.2f}".format(amount).replace(',', '_').replace('.', ',').replace('_', '.') }}
+                                        </span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-table text-primary me-2"></i>Detail Pembayaran
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                            <tr>
+                                <th>NPM</th>
+                                <th>Asisten</th>
+                                <th>Bulan</th>
+                                <th>Mata Kuliah</th>
+                                <th>Jumlah Jam</th>
+                                <th>Honor Per Jam</th>
+                                <th>Jumlah Pembayaran</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for data in keuangan_data %}
+                            <tr>
+                                <td>{{ data.NPM }}</td>
+                                <td>{{ data.Asisten }}</td>
+                                <td>{{ data.Bulan }}</td>
+                                <td>{{ data.Mata_Kuliah }}</td>
+                                <td>{{ data.Jumlah_Jam }}</td>
+                                <td>{{ data.Honor_Per_Jam }}</td>
+                                <td>{{ data.Jumlah_Pembayaran }}</td>
+                                <td>
+                                        <span class="badge {% if data.Status == 'diproses' %}bg-warning{% else %}bg-success{% endif %}">
+                                            {{ data.Status }}
+                                        </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<!-- End Content -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function updateUserData() {
+        fetch('/update-data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    console.log(data.message);
+                } else if (data.error) {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Lakukan update setiap 30 detik
+    setInterval(updateUserData, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+[
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2022",
+        "Mata Kuliah": "Matematika Diskret 1   CSGE601010 - 01.00.12.01-2018",
+        "Jumlah Jam": "3.0 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp75.000,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2022",
+        "Mata Kuliah": "Matematika Diskret 1   CSGE601010 - 01.00.12.01-2018",
+        "Jumlah Jam": "15.75 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp393.750,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "11, 2022",
+        "Mata Kuliah": "Matematika Diskret 1   CSGE601010 - 01.00.12.01-2018",
+        "Jumlah Jam": "8.75 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp218.750,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "12, 2022",
+        "Mata Kuliah": "Matematika Diskret 1   CSGE601010 - 01.00.12.01-2018",
+        "Jumlah Jam": "22.0 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp550.000,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "2, 2023",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2020",
+        "Jumlah Jam": "28.75 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp718.750,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "3, 2023",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2020",
+        "Jumlah Jam": "16.0 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp400.000,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "4, 2023",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2020",
+        "Jumlah Jam": "3.5 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp87.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "5, 2023",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2020",
+        "Jumlah Jam": "18.25 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp456.250,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "6, 2023",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2020",
+        "Jumlah Jam": "18.75 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp468.750,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "7, 2023",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "57.0 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp1.425.000,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2023",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "56.5 Jam",
+        "Honor Per Jam": "Rp25.000,00",
+        "Jumlah Pembayaran": "Rp1.412.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2023",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "17.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp467.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2023",
+        "Mata Kuliah": "Kalkulus 1   CSGE601012 - 01.00.12.01-2020",
+        "Jumlah Jam": "5.5 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp151.250,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "9, 2023",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "49.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.347.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "9, 2023",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "3.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp82.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "9, 2023",
+        "Mata Kuliah": "Kalkulus 1   CSGE601012 - 01.00.12.01-2020",
+        "Jumlah Jam": "1.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp27.500,00",
+        "Status": "tidak disetujui admin"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "9, 2023",
+        "Mata Kuliah": "Kalkulus 1   CSGE601012 - 01.00.12.01-2020",
+        "Jumlah Jam": "33.5 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp921.250,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2023",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "2.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp55.000,00",
+        "Status": "tidak disetujui admin"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2023",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "44.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.216.875,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2023",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "37.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.024.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2023",
+        "Mata Kuliah": "Kalkulus 1   CSGE601012 - 01.00.12.01-2020",
+        "Jumlah Jam": "45.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.237.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "11, 2023",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "1.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp27.500,00",
+        "Status": "tidak disetujui admin"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "11, 2023",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "52.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.450.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "11, 2023",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "29.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp797.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "11, 2023",
+        "Mata Kuliah": "Kalkulus 1   CSGE601012 - 01.00.12.01-2020",
+        "Jumlah Jam": "2.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp55.000,00",
+        "Status": "tidak disetujui admin"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "11, 2023",
+        "Mata Kuliah": "Kalkulus 1   CSGE601012 - 01.00.12.01-2020",
+        "Jumlah Jam": "49.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.354.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "12, 2023",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "66.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.821.875,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "12, 2023",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "25.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp694.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "12, 2023",
+        "Mata Kuliah": "Kalkulus 1   CSGE601012 - 01.00.12.01-2020",
+        "Jumlah Jam": "51.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.409.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "1, 2024",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "44.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.216.875,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "1, 2024",
+        "Mata Kuliah": "Struktur Data &  Algoritma   CSGE602040 - 01.00.12.01-2020",
+        "Jumlah Jam": "19.5 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp536.250,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "1, 2024",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "4.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp130.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "2, 2024",
+        "Mata Kuliah": "Struktur Data &  Algoritma   CSGE602040 - 01.00.12.01-2020",
+        "Jumlah Jam": "47.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.299.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "2, 2024",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "58.5 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.608.750,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "2, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "31.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp852.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "3, 2024",
+        "Mata Kuliah": "Struktur Data &  Algoritma   CSGE602040 - 01.00.12.01-2020",
+        "Jumlah Jam": "41.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.134.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "3, 2024",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "20.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp550.000,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "3, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "57.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.567.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "4, 2024",
+        "Mata Kuliah": "Struktur Data &  Algoritma   CSGE602040 - 01.00.12.01-2020",
+        "Jumlah Jam": "15.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp412.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "4, 2024",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "22.5 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp618.750,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "4, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "34.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp955.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "5, 2024",
+        "Mata Kuliah": "Struktur Data &  Algoritma   CSGE602040 - 01.00.12.01-2020",
+        "Jumlah Jam": "58.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.615.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "5, 2024",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "27.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp749.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "5, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "68.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.890.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "6, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "32.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp900.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "6, 2024",
+        "Mata Kuliah": "Aljabar Linier   CSGE602012 - 01.00.12.01-2018",
+        "Jumlah Jam": "34.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp955.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "6, 2024",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "9.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp268.125,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "7, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "91.5 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp2.516.250,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "7, 2024",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "47.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.313.125,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2024",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "5.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp137.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "11.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp309.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2024",
+        "Mata Kuliah": "Dasar-Dasar Pemrograman 1   CSGE601020 - 01.00.12.01-2020",
+        "Jumlah Jam": "7.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp192.500,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "8, 2024",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "21.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp584.375,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "9, 2024",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "30.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp825.000,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "9, 2024",
+        "Mata Kuliah": "Tutor Teman Belajar  19 - None",
+        "Jumlah Jam": "41.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.148.125,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "9, 2024",
+        "Mata Kuliah": "Dasar-Dasar Pemrograman 1   CSGE601020 - 01.00.12.01-2020",
+        "Jumlah Jam": "40.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.120.625,00",
+        "Status": "diproses"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2024",
+        "Mata Kuliah": "Aljabar Linier S1 Reguler  CSGE602012 - 01.00.12.01-2017",
+        "Jumlah Jam": "4.25 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp116.875,00",
+        "Status": "disetujui dosen/TA"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2024",
+        "Mata Kuliah": "Dasar-Dasar Pemrograman 1   CSGE601020 - 01.00.12.01-2020",
+        "Jumlah Jam": "41.0 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp1.127.500,00",
+        "Status": "dilaporkan"
+    },
+    {
+        "NPM": "2106708311",
+        "Asisten": "Syahrul Apriansyah",
+        "Bulan": "10, 2024",
+        "Mata Kuliah": "Dasar-Dasar Pemrograman 1   CSGE601020 - 01.00.12.01-2020",
+        "Jumlah Jam": "2.75 Jam",
+        "Honor Per Jam": "Rp27.500,00",
+        "Jumlah Pembayaran": "Rp75.625,00",
+        "Status": "disetujui dosen/TA"
+    }
+]

@@ -60,10 +60,10 @@ def get_keuangan_data(username, session, csrf_token, csrftoken_cookie, sessionid
                         "NPM": npm,
                         "Asisten": asisten,
                         "Bulan": bulan_text,
-                        "Mata Kuliah": mata_kuliah,
-                        "Jumlah Jam": jumlah_jam,
-                        "Honor Per Jam": honor_per_jam,
-                        "Jumlah Pembayaran": jumlah_pembayaran,
+                        "Mata_Kuliah": mata_kuliah,
+                        "Jumlah_Jam": jumlah_jam,
+                        "Honor_Per_Jam": honor_per_jam,
+                        "Jumlah_Pembayaran": jumlah_pembayaran,
                         "Status": status
                     })
     return data
@@ -72,22 +72,62 @@ def get_keuangan_data(username, session, csrf_token, csrftoken_cookie, sessionid
 def clean_currency(value):
     """
     Clean currency string and convert to float.
+    Example: 'Rp27.500,00' -> 27500.0
     """
-    return float(value.replace("Rp", "").replace(".", "").replace(",", ".").strip())
+    try:
+        # Hapus 'Rp' dan spasi
+        value = value.replace('Rp', '').replace(' ', '')
+        # Ganti titik ribuan dengan ''
+        value = value.replace('.', '')
+        # Ganti koma desimal dengan titik
+        value = value.replace(',', '.')
+        # Konversi ke float
+        return float(value)
+    except (ValueError, AttributeError) as e:
+        print(f"Error cleaning currency value: {value}, Error: {str(e)}")
+        return 0.0
 
 
-def calculate_total_pembayaran(data, status='diproses'):
+def calculate_total_pembayaran(data, status=None):
     """
     Calculate total payment for a specific status.
+    If status is None, calculate total for all status.
+
+    Args:
+        data: List of payment data
+        status: Status filter (optional)
+
+    Returns:
+        total: Total payment amount
+        status_totals: Dictionary of totals per status (if status=None)
     """
     total = 0
+    status_totals = {}
+
     for entry in data:
-        if entry['Status'].lower() == status:
-            try:
-                total += clean_currency(entry['Jumlah Pembayaran'])
-            except ValueError:
-                print(f"Invalid number format for {entry['Jumlah Pembayaran']}")
-    return total
+        try:
+            amount = clean_currency(entry['Jumlah_Pembayaran'])
+            current_status = entry['Status'].lower()
+
+            # Jika status tidak dispesifikasi, hitung semua
+            if status is None:
+                total += amount
+                # Tracking per status
+                if current_status not in status_totals:
+                    status_totals[current_status] = 0
+                status_totals[current_status] += amount
+            # Jika status dispesifikasi, hitung hanya untuk status tersebut
+            elif current_status == status.lower():
+                total += amount
+
+        except Exception as e:
+            print(f"Error processing entry: {entry}, Error: {str(e)}")
+
+    # Return total saja jika status dispesifikasi
+    if status is not None:
+        return total
+    # Return both total and breakdown jika status None
+    return total, status_totals
 
 
 def save_to_json(data, filename):

@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import pytz
 from datetime import time
 from flask import jsonify
 from flask_caching import Cache
 from celery import Celery
 from log import *
+from keuangan import get_keuangan_data, calculate_total_pembayaran
 
 
 def make_celery(app):
@@ -17,10 +18,10 @@ def make_celery(app):
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config['CACHE_TYPE'] = 'RedisCache'
-app.config['CACHE_REDIS_HOST'] = 'redis'
+app.config['CACHE_REDIS_HOST'] = 'localhost'
 app.config['CACHE_REDIS_PORT'] = 6379
 app.config['CACHE_REDIS_DB'] = 0
-app.config['CACHE_REDIS_URL'] = 'redis://redis:6379/0'
+app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 
 cache = Cache(app)
@@ -689,6 +690,71 @@ def update_data():
 
     return jsonify({'message': 'Data updated successfully'})
 
+@app.route('/keuangan', methods=['GET', 'POST'])
+def keuangan_view():
+    if 'sessionid' not in session:
+        return redirect(url_for('login_page'))
+
+    session_req = requests.Session()
+    session_req.cookies.set('sessionid', session['sessionid'])
+    session_req.cookies.set('csrftoken', session['csrftoken_cookie'])
+
+    current_year = datetime.now().year
+    years = range(current_year - 5, current_year + 2)
+    months = [
+        (1, 'Januari'), (2, 'Februari'), (3, 'Maret'),
+        (4, 'April'), (5, 'Mei'), (6, 'Juni'),
+        (7, 'Juli'), (8, 'Agustus'), (9, 'September'),
+        (10, 'Oktober'), (11, 'November'), (12, 'Desember')
+    ]
+
+    keuangan_data = None
+    total_pembayaran = 0
+    status_totals = {}
+    selected_year = current_year
+    selected_month = datetime.now().month
+
+    if request.method == 'POST':
+        try:
+            selected_year = int(request.form.get('year'))
+            selected_month = int(request.form.get('month'))
+
+            cache_key = f'keuangan_data_{session["sessionid"]}_{selected_year}_{selected_month}'
+            keuangan_data = cache.get(cache_key)
+
+            if keuangan_data is None:
+                keuangan_data = get_keuangan_data(
+                    username=session['username'],
+                    session=session_req,
+                    csrf_token=session['csrf_token'],
+                    csrftoken_cookie=session['csrftoken_cookie'],
+                    sessionid=session['sessionid'],
+                    year=selected_year,
+                    month=selected_month
+                )
+                cache.set(cache_key, keuangan_data, timeout=3600)
+
+            if keuangan_data:
+                total_pembayaran, status_totals = calculate_total_pembayaran(keuangan_data)
+            else:
+                flash('Tidak ada data keuangan untuk periode yang dipilih.', 'info')
+
+        except Exception as e:
+            flash(f"Error mengambil data: {str(e)}", 'error')
+            app.logger.error(f"Error in keuangan_view: {str(e)}")
+
+    return render_template(
+        'keuangan.html',
+        keuangan_data=keuangan_data,
+        total_pembayaran=total_pembayaran,
+        status_totals=status_totals,
+        years=years,
+        months=months,
+        selected_year=selected_year,
+        selected_month=selected_month,
+        current_year=current_year,
+        current_month=datetime.now().month
+    )
 
 @app.route('/logout', methods=['GET'])
 def logout():
