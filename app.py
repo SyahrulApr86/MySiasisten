@@ -317,16 +317,16 @@ def create_log_view(create_log_id):
         combined_logs.append(new_log)
 
         # Cek overlap dengan logs lain
-        overlap, overlap_logs = is_overlap(combined_logs)
-        if overlap:
-            overlap_message = "Log berikut menyebabkan overlap:<br>"
-            for log1, log2 in overlap_logs:
-                log1_course = log1.get('Mata Kuliah', 'Unknown Course')
-                overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
-            return render_template('create_log.html',
-                                   create_log_id=create_log_id,
-                                   error_message=overlap_message,
-                                   formatted_logs=formatted_logs)
+        # overlap, overlap_logs = is_overlap(combined_logs)
+        # if overlap:
+        #     overlap_message = "Log berikut menyebabkan overlap:<br>"
+        #     for log1, log2 in overlap_logs:
+        #         log1_course = log1.get('Mata Kuliah', 'Unknown Course')
+        #         overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
+        #     return render_template('create_log.html',
+        #                            create_log_id=create_log_id,
+        #                            error_message=overlap_message,
+        #                            formatted_logs=formatted_logs)
 
         # Persiapkan data untuk dikirim ke tugas asinkron
         log_data = {
@@ -533,17 +533,17 @@ def edit_log_view(log_id):
         combined_logs.append(edited_log)
 
         # Cek apakah ada overlap
-        overlap, overlap_logs = is_overlap(combined_logs)
-        if overlap:
-            overlap_message = "Log berikut menyebabkan overlap:<br>"
-            for log1, log2 in overlap_logs:
-                log1_course = log1.get('Mata Kuliah', 'Unknown Course')
-                overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
-            return render_template('edit_log.html',
-                                   log_id=log_id,
-                                   error_message=overlap_message,
-                                   log=log_to_edit,
-                                   formatted_logs=formatted_logs)
+        # overlap, overlap_logs = is_overlap(combined_logs)
+        # if overlap:
+        #     overlap_message = "Log berikut menyebabkan overlap:<br>"
+        #     for log1, log2 in overlap_logs:
+        #         log1_course = log1.get('Mata Kuliah', 'Unknown Course')
+        #         overlap_message += f"<strong>{log1_course}:</strong> {log1['Tanggal']} {log1['Jam Mulai']} - {log1['Jam Selesai']}<br><br>"
+        #     return render_template('edit_log.html',
+        #                            log_id=log_id,
+        #                            error_message=overlap_message,
+        #                            log=log_to_edit,
+        #                            formatted_logs=formatted_logs)
 
         # Persiapkan data untuk dikirim ke tugas asinkron
         log_data = {
